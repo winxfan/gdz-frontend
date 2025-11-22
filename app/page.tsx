@@ -1,7 +1,12 @@
 'use client';
 
 import { Box, Container, Typography, Link as MLink, Paper } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import TranslateIcon from '@mui/icons-material/Translate';
+import ScienceIcon from '@mui/icons-material/Science';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
+import SchoolIcon from '@mui/icons-material/School';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
@@ -28,6 +33,37 @@ export default function Page() {
 	const handleSelect = async (file: File) => {
 		console.log('Selected file', file.name);
 	};
+
+	const subjectLabels: Record<string, string> = {
+		'mathematics': 'Математика',
+		'russian-language': 'Русский язык',
+		'english': 'Английский язык',
+		'physics': 'Физика',
+		'chemistry': 'Химия',
+		'biology': 'Биология',
+		'geography': 'География',
+		'history': 'История',
+		'social-science': 'Обществознание',
+		'computer-science': 'Информатика',
+		'literature': 'Литература',
+	};
+
+	const subjectsByCategory = [
+		{ title: 'Гуманитарные', icon: <MenuBookIcon fontSize="small" />, items: ['history', 'social-science', 'literature'] },
+		{ title: 'Филология и языки', icon: <TranslateIcon fontSize="small" />, items: ['russian-language', 'english'] },
+		{ title: 'Естественно-научные', icon: <ScienceIcon fontSize="small" />, items: ['mathematics', 'physics', 'chemistry', 'biology', 'geography', 'computer-science'] },
+	] as const;
+
+	const parseClassNum = (slug: string) => Number(slug.split('-')[0]) || 0;
+	const classLabel = (slug: string) => {
+		const n = parseClassNum(slug);
+		return `${n} класс`;
+	};
+	const classesByStage = [
+		{ title: 'Начальная школа (1–4)', icon: <ChildCareIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 1 && n <= 4; }) },
+		{ title: 'Основная школа (5–9)', icon: <SchoolIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 5 && n <= 9; }) },
+		{ title: 'Старшая школа (10–11)', icon: <WorkspacePremiumIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 10 && n <= 11; }) },
+	] as const;
 
 	return (
 		<main>
@@ -118,40 +154,56 @@ export default function Page() {
 					<Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} align="center">
 						Каталог страниц
 					</Typography>
-					<Grid container columns={12} columnSpacing={3} rowSpacing={3}>
-						<Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' } }}>
-							<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
-								<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-									Классы
-								</Typography>
-								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-									{classes.map((slug) => (
-										<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
-											<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-												{slug}
-											</Paper>
-										</MLink>
-									))}
+					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 2, md: 3 }, alignItems: 'stretch' }}>
+						<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
+							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+								Классы
+							</Typography>
+							{classesByStage.map((seg) => (
+								<Box key={seg.title} sx={{ mb: 2 }}>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+										{seg.icon}
+										<Typography sx={{ fontWeight: 600 }}>{seg.title}</Typography>
+									</Box>
+									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+										{seg.list.map((slug) => (
+											<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
+												<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
+													{classLabel(slug)}
+												</Paper>
+											</MLink>
+										))}
+									</Box>
 								</Box>
-							</Paper>
-						</Grid>
-						<Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' } }}>
-							<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
-								<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-									Предметы
-								</Typography>
-								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-									{subjects.map((slug) => (
-										<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
-											<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-												{slug}
-											</Paper>
-										</MLink>
-									))}
-								</Box>
-							</Paper>
-						</Grid>
-					</Grid>
+							))}
+						</Paper>
+						<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
+							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+								Предметы
+							</Typography>
+							{subjectsByCategory.map((seg) => {
+								const items = seg.items.filter((s) => subjects.includes(s));
+								if (!items.length) return null;
+								return (
+									<Box key={seg.title} sx={{ mb: 2 }}>
+										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+											{seg.icon}
+											<Typography sx={{ fontWeight: 600 }}>{seg.title}</Typography>
+										</Box>
+										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+											{items.map((slug) => (
+												<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
+													<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
+														{subjectLabels[slug] ?? slug}
+													</Paper>
+												</MLink>
+											))}
+										</Box>
+									</Box>
+								);
+							})}
+						</Paper>
+					</Box>
 				</Container>
 			</Box>
 

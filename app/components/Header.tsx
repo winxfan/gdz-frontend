@@ -43,7 +43,7 @@ export default function Header() {
 	return (
 		<AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
 			<Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
-				<Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+				<Link href="/" style={{ textDecoration: 'none', color: '#e55f5f' }}>
 					<Typography variant="h6" sx={{ fontWeight: 800 }}>гдз-по-фото.рф</Typography>
 				</Link>
 
