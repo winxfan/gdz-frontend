@@ -84,14 +84,12 @@ export default function Page() {
 							alignItems: 'stretch',
 						}}
 					>
-						<Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, height: '100%', border: '1px solid', borderColor: 'divider' }}>
-							<Box
-								component="img"
-								src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=1280&auto=format&fit=crop"
-								alt="Учёба"
-								sx={{ width: '100%', borderRadius: 2, display: 'block', objectFit: 'cover' }}
-							/>
-						</Paper>
+						<Box
+							component="img"
+							src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=1280&auto=format&fit=crop"
+							alt="Учёба"
+							sx={{ width: '100%', borderRadius: 2, display: 'block', objectFit: 'cover' }}
+						/>
 						<Box sx={{ height: '100%' }}>
 							<UploadZoneWithChess
 								onSelect={handleSelect}

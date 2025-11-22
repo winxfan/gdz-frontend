@@ -63,11 +63,16 @@ export default function UploadZoneWithChess({
     <Box
       sx={{
         p: { xs: 2, md: 3 },
-        borderRadius: 3,
+        borderRadius: 1,
         boxShadow: 2,
         border: '1px solid',
         borderColor: isDrag ? 'primary.main' : 'divider',
         transition: 'border-color .2s ease',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         ...chessBg,
       }}
       onDragOver={handleDragOver}
