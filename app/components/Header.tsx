@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -17,6 +18,7 @@ import Dialog from '@mui/material/Dialog';
 import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
 import { userAtom, userLightningBalanceAtom } from '@/state/user';
+import logoPng from '@/assets/gdz-logo.jpg';
 
 const subjects = [
 	{ label: 'Математика', href: '/mathematics' },
@@ -43,8 +45,11 @@ export default function Header() {
 	return (
 		<AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
 			<Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
-				<Link href="/" style={{ textDecoration: 'none', color: '#e55f5f' }}>
-					<Typography variant="h6" sx={{ fontWeight: 800 }}>гдз-по-фото.рф</Typography>
+				<Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+						<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} priority />
+						<Typography variant="h6" sx={{ fontWeight: 800 }}>гдз-по-фото.рф</Typography>
+					</Box>
 				</Link>
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'wrap' }}>
@@ -73,12 +78,12 @@ export default function Header() {
 						onClick={() => setTopUpOpen(true)}
 						startIcon={<AddIcon />}
 					>
-						Баланс молний: {balance}
+						Баланс ответов: {balance}
 					</Button>
 
 					{!user?.id && (
 						<Button color="primary" variant="contained" onClick={() => setAuthOpen(true)}>
-							Быстрый вход
+							Вход или регистрация
 						</Button>
 					)}
 
