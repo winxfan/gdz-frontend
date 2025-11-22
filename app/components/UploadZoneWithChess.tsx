@@ -4,7 +4,7 @@ import FreeButton from '@/components/FreeButton';
 
 export type UploadZoneWithChessProps = {
   onSelect: (file: File) => void;
-  exampleImages: string[];
+  exampleImages?: string[];
   buttonLabel?: string;
   backgroundOpacity?: number;
   disabled?: boolean;
@@ -88,9 +88,11 @@ export default function UploadZoneWithChess({
 
       <Box sx={{ textAlign: 'center', mt: 2 }}>
         <Typography sx={{ fontWeight: 600, mb: 1 }}>Или перетащите изображение сюда</Typography>
-        <Typography color="text.secondary" sx={{ mb: 1 }}>Нет изображения? Попробуйте наше:</Typography>
+        {exampleImages && (
+          <Typography color="text.secondary" sx={{ mb: 1 }}>Нет изображения? Попробуйте наше:</Typography>
+        )}
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-          {exampleImages.map((url, i) => (
+          {exampleImages?.map((url, i) => (
             <Avatar
               key={i}
               src={url}
