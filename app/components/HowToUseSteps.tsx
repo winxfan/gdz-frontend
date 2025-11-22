@@ -11,7 +11,7 @@ export type HowToUseStepsProps = {
   steps: StepItem[];
 };
 
-export default function HowToUseSteps({ title = 'Как это работает', steps }: HowToUseStepsProps) {
+export default function HowToUseSteps({ title = 'Как работает гдз по фото', steps }: HowToUseStepsProps) {
   return (
     <Box sx={{ maxWidth: 'lg', mx: 'auto' }}>
       <Typography variant="h5" align="center" sx={{ fontWeight: 700, mb: 4 }}>

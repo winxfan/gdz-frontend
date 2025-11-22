@@ -1,12 +1,6 @@
 'use client';
 
 import { Box, Container, Typography, Link as MLink, Paper } from '@mui/material';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import TranslateIcon from '@mui/icons-material/Translate';
-import ScienceIcon from '@mui/icons-material/Science';
-import ChildCareIcon from '@mui/icons-material/ChildCare';
-import SchoolIcon from '@mui/icons-material/School';
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
@@ -15,6 +9,7 @@ import NextLink from 'next/link';
 import infoblock1 from '@/assets/infoblock1.png';
 import infoblock2 from '@/assets/infoblock2.png';
 import infoblock3 from '@/assets/infoblock3.png';
+import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
 
 const subjects = [
@@ -57,9 +52,9 @@ export default function Page() {
 	};
 
 	const subjectsByCategory = [
-		{ title: 'Гуманитарные', icon: <MenuBookIcon fontSize="small" />, items: ['history', 'social-science', 'literature'] },
-		{ title: 'Филология и языки', icon: <TranslateIcon fontSize="small" />, items: ['russian-language', 'english'] },
-		{ title: 'Естественно-научные', icon: <ScienceIcon fontSize="small" />, items: ['mathematics', 'physics', 'chemistry', 'biology', 'geography', 'computer-science'] },
+		{ title: 'Гуманитарные', items: ['history', 'social-science', 'literature'] },
+		{ title: 'Филология и языки', items: ['russian-language', 'english'] },
+		{ title: 'Естественно-научные', items: ['mathematics', 'physics', 'chemistry', 'biology', 'geography', 'computer-science'] },
 	] as const;
 
 	const parseClassNum = (slug: string) => Number(slug.split('-')[0]) || 0;
@@ -68,10 +63,24 @@ export default function Page() {
 		return `${n} класс`;
 	};
 	const classesByStage = [
-		{ title: 'Начальная школа (1–4)', icon: <ChildCareIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 1 && n <= 4; }) },
-		{ title: 'Основная школа (5–9)', icon: <SchoolIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 5 && n <= 9; }) },
-		{ title: 'Старшая школа (10–11)', icon: <WorkspacePremiumIcon fontSize="small" />, list: classes.filter((s) => { const n = parseClassNum(s); return n >= 10 && n <= 11; }) },
+		{ title: 'Начальная школа (1–4)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 1 && n <= 4; }) },
+		{ title: 'Основная школа (5–9)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 5 && n <= 9; }) },
+		{ title: 'Старшая школа (10–11)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 10 && n <= 11; }) },
 	] as const;
+
+	const stageLabelWithEmoji = (title: string) => {
+		if (title.startsWith('Начальная')) return `👶 ${title}`;
+		if (title.startsWith('Основная')) return `🧑‍🏫 ${title}`;
+		if (title.startsWith('Старшая')) return `🎓 ${title}`;
+		return title;
+	};
+
+	const categoryLabelWithEmoji = (title: string) => {
+		if (title.startsWith('Гуманитарные')) return `📖 ${title}`;
+		if (title.startsWith('Филология')) return `🗣️ ${title}`;
+		if (title.startsWith('Естественно')) return `🧪 ${title}`;
+		return title;
+	};
 
 	return (
 		<main>
@@ -166,18 +175,25 @@ export default function Page() {
 			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
 				<Container maxWidth="lg">
 					<Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} align="center">
-						Каталог страниц
+						📚 Любые предметы и все классы
 					</Typography>
 					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 2, md: 3 }, alignItems: 'stretch' }}>
-						<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
+						<Paper
+							elevation={0}
+							sx={(t) => ({
+								p: 3,
+								border: '1px solid',
+								borderColor: alpha(t.palette.primary.main, 0.25),
+								bgcolor: alpha(t.palette.primary.main, 0.06),
+							})}
+						>
 							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
 								Классы
 							</Typography>
 							{classesByStage.map((seg) => (
 								<Box key={seg.title} sx={{ mb: 2 }}>
-									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-										{seg.icon}
-										<Typography sx={{ fontWeight: 600 }}>{seg.title}</Typography>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'primary.main' }}>
+										<Typography sx={{ fontWeight: 600 }}>{stageLabelWithEmoji(seg.title)}</Typography>
 									</Box>
 									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 										{seg.list.map((slug) => (
@@ -191,7 +207,15 @@ export default function Page() {
 								</Box>
 							))}
 						</Paper>
-						<Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider' }}>
+						<Paper
+							elevation={0}
+							sx={(t) => ({
+								p: 3,
+								border: '1px solid',
+								borderColor: alpha(t.palette.secondary.main, 0.25),
+								bgcolor: alpha(t.palette.secondary.main, 0.06),
+							})}
+						>
 							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
 								Предметы
 							</Typography>
@@ -200,9 +224,8 @@ export default function Page() {
 								if (!items.length) return null;
 								return (
 									<Box key={seg.title} sx={{ mb: 2 }}>
-										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-											{seg.icon}
-											<Typography sx={{ fontWeight: 600 }}>{seg.title}</Typography>
+										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'secondary.main' }}>
+											<Typography sx={{ fontWeight: 600 }}>{categoryLabelWithEmoji(seg.title)}</Typography>
 										</Box>
 										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 											{items.map((slug) => (
