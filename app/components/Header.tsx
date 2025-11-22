@@ -1,5 +1,7 @@
+ 'use client';
+
 import Link from 'next/link';
-import { useState, MouseEvent, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -11,125 +13,95 @@ import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useQuery } from '@tanstack/react-query';
+import Dialog from '@mui/material/Dialog';
+import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
-import { userAtom, logoutAtom } from '@/state/user';
-import { API_BASE, getUser } from '@/lib/api';
-import { useRouter } from 'next/router';
+import { userAtom, userLightningBalanceAtom } from '@/state/user';
 
-const photoModels = [
-  { label: 'Reve / text-to-image', href: '/models?category=photo' },
-  { label: 'Reve / remix', href: '/models?category=photo' },
-];
-
-const videoModels = [
-  { label: 'Veo 3.1', href: '/models?category=video' },
-  { label: 'Kling Video', href: '/models?category=video' },
-];
-
-const textModels = [
-  { label: 'LLM Text', href: '/models?category=text' },
+const subjects = [
+	{ label: 'Математика', href: '/mathematics' },
+	{ label: 'Русский язык', href: '/russian-language' },
+	{ label: 'Физика', href: '/physics' },
+	{ label: 'Химия', href: '/chemistry' },
+	{ label: 'Биология', href: '/biology' },
+	{ label: 'География', href: '/geography' },
+	{ label: 'История', href: '/history' },
+	{ label: 'Обществознание', href: '/social-science' },
+	{ label: 'Информатика', href: '/computer-science' },
+	{ label: 'Литература', href: '/literature' },
 ];
 
 export default function Header() {
-  const [user, setUser] = useAtom(userAtom);
-  const [, logout] = useAtom(logoutAtom);
-  const router = useRouter();
-  const { data } = useQuery({
-    queryKey: ['me'],
-    queryFn: getUser,
-    staleTime: 60_000,
-  });
-  useEffect(() => {
-    if (data) setUser(data);
-  }, [data, setUser]);
+	const [user, setUser] = useAtom(userAtom);
+	const [balance] = useAtom(userLightningBalanceAtom);
+	const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+	const [authOpen, setAuthOpen] = useState(false);
+	const [topUpOpen, setTopUpOpen] = useState(false);
 
-  const [anchorPhoto, setAnchorPhoto] = useState<null | HTMLElement>(null);
-  const [anchorVideo, setAnchorVideo] = useState<null | HTMLElement>(null);
-  const [anchorText, setAnchorText] = useState<null | HTMLElement>(null);
-  const [anchorUser, setAnchorUser] = useState<null | HTMLElement>(null);
+	const initials = useMemo(() => (user?.name ? user.name.split(' ').map((p) => p[0]).slice(0, 2).join('') : 'U'), [user?.name]);
 
-  const openMenu = (
-    setter: (el: HTMLElement | null) => void,
-  ) => (e: MouseEvent<HTMLElement>) => setter(e.currentTarget);
-  const closeMenu = (setter: (el: HTMLElement | null) => void) => () => setter(null);
+	return (
+		<AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
+			<Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
+				<Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+					<Typography variant="h6" sx={{ fontWeight: 800 }}>гдз-по-фото.рф</Typography>
+				</Link>
 
-  return (
-    <AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-      <Toolbar sx={{ gap: 2 }}>
-        <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>Креатум</Typography>
-        </Link>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'wrap' }}>
+					<Button
+						color="inherit"
+						endIcon={<KeyboardArrowDownIcon />}
+						onClick={(e) => setMenuAnchor(e.currentTarget)}
+					>
+						Предметы
+					</Button>
+					<Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+						{subjects.map((s) => (
+							<MenuItem key={s.href} component={Link as any} href={s.href} onClick={() => setMenuAnchor(null)}>
+								{s.label}
+							</MenuItem>
+						))}
+					</Menu>
+				</Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
-          <Link href="/models" style={{ textDecoration: 'none' }}>
-            <Button color="inherit">Все модели</Button>
-          </Link>
+				<Box sx={{ flexGrow: 1 }} />
 
-          <Button color="inherit" endIcon={<KeyboardArrowDownIcon />} onClick={openMenu(setAnchorPhoto)}>AI фото</Button>
-          <Menu anchorEl={anchorPhoto} open={!!anchorPhoto} onClose={closeMenu(setAnchorPhoto)}>
-            {photoModels.map((m) => (
-              <MenuItem key={m.label} component={Link as any} href={m.href} onClick={closeMenu(setAnchorPhoto)}>
-                {m.label}
-              </MenuItem>
-            ))}
-          </Menu>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+					<Button
+						variant="outlined"
+						color="primary"
+						onClick={() => setTopUpOpen(true)}
+						startIcon={<AddIcon />}
+					>
+						Баланс молний: {balance}
+					</Button>
 
-          <Button color="inherit" endIcon={<KeyboardArrowDownIcon />} onClick={openMenu(setAnchorVideo)}>Ai видео</Button>
-          <Menu anchorEl={anchorVideo} open={!!anchorVideo} onClose={closeMenu(setAnchorVideo)}>
-            {videoModels.map((m) => (
-              <MenuItem key={m.label} component={Link as any} href={m.href} onClick={closeMenu(setAnchorVideo)}>
-                {m.label}
-              </MenuItem>
-            ))}
-          </Menu>
+					{!user?.id && (
+						<Button color="primary" variant="contained" onClick={() => setAuthOpen(true)}>
+							Быстрый вход
+						</Button>
+					)}
 
-          <Button color="inherit" endIcon={<KeyboardArrowDownIcon />} onClick={openMenu(setAnchorText)}>AI текст</Button>
-          <Menu anchorEl={anchorText} open={!!anchorText} onClose={closeMenu(setAnchorText)}>
-            {textModels.map((m) => (
-              <MenuItem key={m.label} component={Link as any} href={m.href} onClick={closeMenu(setAnchorText)}>
-                {m.label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
+					{user?.id && (
+						<IconButton size="small">
+							<Avatar sx={{ width: 28, height: 28 }} src={user.avatarUrl || undefined}>
+								{initials}
+							</Avatar>
+						</IconButton>
+					)}
+				</Box>
 
-        <Box sx={{ flexGrow: 1 }} />
-
-        {!user && (
-          <Button color="primary" variant="contained" onClick={() => {
-            router.replace({ pathname: router.pathname, query: { ...router.query, auth: 'true' } }, undefined, { shallow: true });
-          }}>
-            Войти
-          </Button>
-        )}
-
-        {user && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-              <Box sx={{ px: 1.5, py: 0.75 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {`$${Number(user.balance_tokens ?? 0).toFixed(2)}`}
-                </Typography>
-              </Box>
-              <Box sx={{ borderLeft: '1px solid', borderColor: 'divider' }}>
-                <IconButton color="primary" size="small" component={Link as any} href="/balance" aria-label="Пополнить" sx={{ borderRadius: 0, px: 1.25, py: 0.75 }}>
-                  <AddIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </Box>
-            <IconButton onClick={openMenu(setAnchorUser)} size="small">
-              <Avatar sx={{ width: 28, height: 28 }} src={user.avatar_url || undefined} />
-            </IconButton>
-            <Menu anchorEl={anchorUser} open={!!anchorUser} onClose={closeMenu(setAnchorUser)}>
-              <MenuItem component={Link as any} href="/profile" onClick={closeMenu(setAnchorUser)}>Профиль</MenuItem>
-              <MenuItem onClick={() => { logout(); closeMenu(setAnchorUser)(); }}>Выйти</MenuItem>
-            </Menu>
-          </Box>
-        )}
-      </Toolbar>
-    </AppBar>
-  );
+				<AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
+				<Dialog open={topUpOpen} onClose={() => setTopUpOpen(false)} maxWidth="xs" fullWidth>
+					<Box sx={{ p: 3 }}>
+						<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Пополнение баланса</Typography>
+						<Typography color="text.secondary">Модалка пополнения будет реализована позже.</Typography>
+						<Box sx={{ textAlign: 'right', mt: 2 }}>
+							<Button onClick={() => setTopUpOpen(false)}>Закрыть</Button>
+						</Box>
+					</Box>
+				</Dialog>
+			</Toolbar>
+		</AppBar>
+	);
 }
-
-

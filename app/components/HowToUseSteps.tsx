@@ -31,9 +31,6 @@ export default function HowToUseSteps({ title = 'Как это работает'
             </Paper>
           </Box>
         ))}
-        <Box sx={{ gridColumn: '1 / -1', display: { xs: 'none', md: 'block' } }}>
-          <Divider />
-        </Box>
       </Box>
     </Box>
   );

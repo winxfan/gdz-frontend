@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
@@ -8,8 +10,8 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import CloseIcon from '@mui/icons-material/Close';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import { useRouter } from 'next/router';
-import { API_BASE } from '@/lib/api';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { API_BASE } from '../config';
 import VkLogo from '@/assets/vk_logo.svg';
 import YandexLogo from '@/assets/yandex_logo.svg';
 import GoogleLogo from '@/assets/google_logo.svg';
@@ -24,16 +26,21 @@ function asUrl(mod: any): string {
   return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
 }
 
-export default function AuthDialog() {
+export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boolean; onClose?: () => void } = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const open = useMemo(() => {
-    const q = router.query?.auth;
+    if (typeof forcedOpen === 'boolean') return forcedOpen;
+    const q = searchParams.get('auth');
     return q === 'true' || q === '1' || q === '';
-  }, [router.query]);
+  }, [forcedOpen, searchParams]);
 
   const close = () => {
-    const { auth, ...rest } = router.query || {};
-    router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+    if (onClose) return onClose();
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('auth');
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const oauth = (provider: 'vk' | 'yandex' | 'google') => {

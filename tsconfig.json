@@ -18,6 +18,12 @@
     "jsx": "preserve",
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "app/*"
+      ]
+    },
     "plugins": [
       {
         "name": "next"

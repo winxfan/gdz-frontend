@@ -1,4 +1,11 @@
+import Providers from './providers';
 import './globals.css';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
 export const metadata = {
 	title: 'gdz-frontend',
@@ -8,12 +15,16 @@ export const metadata = {
 export default function RootLayout({
 	children,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 }) {
 	return (
-		<html lang="ru">
+		<html lang="ru" className={inter.className}>
 			<body>
-				{children}
+				<Providers>
+					<Header />
+					{children}
+					<Footer />
+				</Providers>
 			</body>
 		</html>
 	);
