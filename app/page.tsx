@@ -11,20 +11,7 @@ import infoblock2 from '@/assets/infoblock2.png';
 import infoblock3 from '@/assets/infoblock3.png';
 import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
-
-const subjects = [
-	'mathematics',
-	'russian-language',
-	'english',
-	'physics',
-	'chemistry',
-	'biology',
-	'geography',
-	'history',
-	'social-science',
-	'computer-science',
-	'literature',
-];
+import subjectsData from '@/subjects.json';
 
 const classes = Array.from({ length: 11 }, (_, i) => `${i + 1}-class`);
 
@@ -37,25 +24,15 @@ export default function Page() {
 		return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
 	}
 
-	const subjectLabels: Record<string, string> = {
-		'mathematics': 'Математика',
-		'russian-language': 'Русский язык',
-		'english': 'Английский язык',
-		'physics': 'Физика',
-		'chemistry': 'Химия',
-		'biology': 'Биология',
-		'geography': 'География',
-		'history': 'История',
-		'social-science': 'Обществознание',
-		'computer-science': 'Информатика',
-		'literature': 'Литература',
-	};
-
 	const subjectsByCategory = [
-		{ title: 'Гуманитарные', items: ['history', 'social-science', 'literature'] },
-		{ title: 'Филология и языки', items: ['russian-language', 'english'] },
-		{ title: 'Естественно-научные', items: ['mathematics', 'physics', 'chemistry', 'biology', 'geography', 'computer-science'] },
-	] as const;
+		{ title: '📐 Математика', list: subjectsData['Математика'] },
+		{ title: '🧪 Естественные науки', list: subjectsData['Естественные науки'] },
+		{ title: '📚 Общественные науки', list: subjectsData['Общественные науки'] },
+		{ title: '🗣️ Гуманитарные науки', list: subjectsData['Гуманитарные науки'] },
+		{ title: '🛠️ Технология', list: subjectsData['Технология'] },
+		{ title: '🏃 Физическая культура', list: subjectsData['Физическая культура'] },
+		{ title: '🎨 Художественные науки', list: subjectsData['Художественные науки'] },
+	];
 
 	const parseClassNum = (slug: string) => Number(slug.split('-')[0]) || 0;
 	const classLabel = (slug: string) => {
@@ -75,12 +52,7 @@ export default function Page() {
 		return title;
 	};
 
-	const categoryLabelWithEmoji = (title: string) => {
-		if (title.startsWith('Гуманитарные')) return `📖 ${title}`;
-		if (title.startsWith('Филология')) return `🗣️ ${title}`;
-		if (title.startsWith('Естественно')) return `🧪 ${title}`;
-		return title;
-	};
+	// Категории предметов уже содержат эмодзи в заголовке
 
 	return (
 		<main>
@@ -219,26 +191,27 @@ export default function Page() {
 							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
 								Предметы
 							</Typography>
-							{subjectsByCategory.map((seg) => {
-								const items = seg.items.filter((s) => subjects.includes(s));
-								if (!items.length) return null;
-								return (
-									<Box key={seg.title} sx={{ mb: 2 }}>
-										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'secondary.main' }}>
-											<Typography sx={{ fontWeight: 600 }}>{categoryLabelWithEmoji(seg.title)}</Typography>
-										</Box>
-										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-											{items.map((slug) => (
-												<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
-													<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-														{subjectLabels[slug] ?? slug}
-													</Paper>
-												</MLink>
-											))}
-										</Box>
+							{subjectsByCategory.map((seg) => (
+								<Box key={seg.title} sx={{ mb: 2 }}>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'secondary.main' }}>
+										<Typography sx={{ fontWeight: 600 }}>{seg.title}</Typography>
 									</Box>
-								);
-							})}
+									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+										{(seg.list || []).map((item, idx) => (
+											<MLink
+												key={`${item.title}-${idx}`}
+												component={NextLink}
+												href={`/${encodeURIComponent(item.title)}`}
+												underline="none"
+											>
+												<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
+													{item.title}
+												</Paper>
+											</MLink>
+										))}
+									</Box>
+								</Box>
+							))}
 						</Paper>
 					</Box>
 				</Container>
