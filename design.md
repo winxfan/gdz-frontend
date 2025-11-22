@@ -156,7 +156,7 @@ export const theme = createTheme({
       },
     },
 
-    // TextField — поля ввода
+    // TextField - поля ввода
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -167,7 +167,7 @@ export const theme = createTheme({
       },
     },
 
-    // Card — блоки
+    // Card - блоки
     MuiPaper: {
       styleOverrides: {
         root: {

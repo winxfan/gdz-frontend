@@ -37,7 +37,7 @@ function titleFromSlug(slug: string): string {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
 	const t = titleFromSlug(params.slug);
 	return {
-		title: `${t} — ГДЗ по фото`,
+		title: `${t} - ГДЗ по фото`,
 		description: `Решение задач по "${t}" по фото. Загрузите задачу и получите решение.`,
 	};
 }
@@ -56,7 +56,7 @@ export default function SubjectOrClassPage({ params }: { params: { slug: string 
 						{h1}: решаем задачи по фото
 					</Typography>
 					<Typography align="center" color="text.secondary" sx={{ mb: { xs: 4, md: 6 } }}>
-						Загрузите фото — получайте подробные решения. 5 бесплатных молний для старта.
+						Загрузите фото - получайте подробные решения. 5 бесплатных молний для старта.
 					</Typography>
 
 					<Grid container spacing={3} alignItems="stretch">
@@ -110,7 +110,7 @@ export default function SubjectOrClassPage({ params }: { params: { slug: string 
 					/>
 					<InfoBlock
 						title="Подписка для активного обучения"
-						description="Получайте больше решений с подпиской — учитесь быстрее, готовьтесь к контрольным и экзаменам."
+						description="Получайте больше решений с подпиской - учитесь быстрее, готовьтесь к контрольным и экзаменам."
 						image="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1280&auto=format&fit=crop"
 						buttonText="Посмотреть тарифы"
 						onButtonClick={() => {}}

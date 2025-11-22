@@ -48,7 +48,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
   };
 
   const email = () => {
-    // Временная точка входа по почте — переведём в профиль
+    // Временная точка входа по почте - переведём в профиль
     router.push('/profile');
   };
 
