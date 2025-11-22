@@ -12,6 +12,9 @@ import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
 import FAQSection from '@/components/FAQSection';
 import NextLink from 'next/link';
+import infoblock1 from '@/assets/infoblock1.png';
+import infoblock2 from '@/assets/infoblock2.png';
+import infoblock3 from '@/assets/infoblock3.png';
 import Banner1 from '@/assets/banner-1.png';
 
 const subjects = [
@@ -34,6 +37,10 @@ export default function Page() {
 	const handleSelect = async (file: File) => {
 		console.log('Selected file', file.name);
 	};
+
+	function asUrl(mod: any): string {
+		return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
+	}
 
 	const subjectLabels: Record<string, string> = {
 		'mathematics': 'Математика',
@@ -130,25 +137,25 @@ export default function Page() {
 			<Box sx={{ py: { xs: 5, md: 8 } }}>
 				<Container maxWidth="lg" sx={{ display: 'grid', gap: 3 }}>
 					<InfoBlock
-						title="Мгновенные решения"
-						description="Ваше фото анализируется автоматически: распознаём текст, определяем предмет и класс, формируем решение."
-						image="https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1280&auto=format&fit=crop"
+						title="⚡ Быстрые и осмысленные ответы"
+						description="Получайте точные и осмысленные ответы на задание за секунды. Просто сделайте фото упражнения — сервис распознает текст, решит задачу и выдаст понятный результат без лишнего поиска. Быстро, удобно и без бесконечного листания обычных решебников."
+						image={asUrl(infoblock1)}
 						buttonText="Попробовать"
 						onButtonClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 						imagePosition="left"
 					/>
 					<InfoBlock
-						title="5 бесплатных решений"
-						description="Новые пользователи получают 5 молний. Затем оформляйте подписку и решайте больше задач."
-						image="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1280&auto=format&fit=crop"
+						title="🧠 Понятное объяснение задачи"
+						description="Наш ИИ не просто подсказывает ответ — он подробно объясняет, как решается задача. Пошаговые разборы, формулы, логика и примеры помогут действительно понять материал и разобраться в сложных темах — как с внимательным репетитором."
+						image={asUrl(infoblock2)}
 						buttonText="Узнать о подписке"
 						onButtonClick={() => {}}
 						imagePosition="right"
 					/>
 					<InfoBlock
-						title="История и прогресс"
-						description="Сохраняйте решения, возвращайтесь к ним и делитесь ими."
-						image="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1280&auto=format&fit=crop"
+						title="📚 Все школьные предметы — универсальный решебник и ГДЗ"
+						description="Один сервис — все решения. Поддерживаем математику, русский, физику, химию, английский и другие предметы. Универсальный решебник по фото: загрузите фото задачи — получите решение и объяснение в один клик."
+						image={asUrl(infoblock3)}
 						buttonText="Открыть историю"
 						onButtonClick={() => {}}
 						imagePosition="left"
