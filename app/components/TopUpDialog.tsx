@@ -37,8 +37,8 @@ export type TopUpDialogProps = {
 
 const defaultPacks: EnergyPack[] = [
 	{ id: 'start', title: 'Старт', amount: 10, priceRub: 76, bonusAmount: 0, benefitPercent: 0, image: tariff1 },
-	{ id: 'opt', title: '🔥 Оптим', amount: 25, priceRub: 173, bonusAmount: 6, benefitPercent: 25, image: tariff2 },
-	{ id: 'max', title: '🔥 Максимум', amount: 100, priceRub: 704, bonusAmount: 50, benefitPercent: 50, image: tariff3 },
+	{ id: 'opt', title: 'Оптимальный', amount: 25, priceRub: 173, bonusAmount: 6, benefitPercent: 25, image: tariff2 },
+	{ id: 'max', title: 'Максимальный', amount: 100, priceRub: 704, bonusAmount: 50, benefitPercent: 50, image: tariff3 },
 ];
 
 const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
@@ -59,7 +59,10 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					<CloseIcon />
 				</IconButton>
 				<Typography variant="h4" sx={{ fontWeight: 800, mb: 1, textAlign: 'center' }}>
-					Ваш баланс: ⚡ {balance}
+					Ваш баланс: ⚡{balance}
+				</Typography>
+				<Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 1.5 }}>
+					⚡1 = 1 решение задачи по фото
 				</Typography>
 
 				<Box sx={{ mt: { xs: 1, sm: 2 } }}>
@@ -88,7 +91,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 										</Typography>
 									) : null}
 									<Typography variant="body1" sx={{ fontWeight: 700 }}>
-										⚡ {pack.amount} {(pack.bonusAmount ?? 0) > 0 ? ` + ⚡ ${pack.bonusAmount} в подарок` : ''}
+										⚡{pack.amount} {(pack.bonusAmount ?? 0) > 0 ? ` + ⚡${pack.bonusAmount} в подарок` : ''}
 									</Typography>
 									<Typography variant="body2" color="text.secondary">
 										Всего: {pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))} 
@@ -109,18 +112,12 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 										whiteSpace: 'nowrap',
 									}}
 								>
-									{pack.buttonLabel ?? `Купить за ${rub.format(pack.priceRub)}`}
+									{pack.buttonLabel ?? `Купить ⚡${pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))}  за ${pack.priceRub} рублей`}
 								</Button>
 							</Stack>
 							{index < packs.length - 1 && <Divider />}
 						</Box>
 					))}
-				</Box>
-
-				<Box sx={{ textAlign: 'center', mt: 2 }}>
-					<Button variant="text" color="primary" onClick={onClose} sx={{ fontWeight: 700 }}>
-						История действий
-					</Button>
 				</Box>
 			</Box>
 		</Dialog>
