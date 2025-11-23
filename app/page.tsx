@@ -79,7 +79,7 @@ export default function Page() {
 							component="img"
 							src={Banner1.src}
 							alt="Учёба"
-							sx={{ width: '100%', borderRadius: 2, display: 'block', objectFit: 'cover' }}
+							sx={{ width: '100%', borderRadius: 1, display: 'block', objectFit: 'cover' }}
 						/>
 						<Box sx={{ height: '100%' }}>
 							<UploadZoneWithChess
