@@ -4,19 +4,27 @@ import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import IconButton from '@mui/material/IconButton';
 import { useAtom } from 'jotai';
 import { userLightningBalanceAtom } from '@/state/user';
-import BoltIcon from '@mui/icons-material/Bolt';
 import { ReactNode } from 'react';
+import Image, { StaticImageData } from 'next/image';
+import tariff1 from '@/assets/tariff1.png';
+import tariff2 from '@/assets/tariff2.jpg';
+import tariff3 from '@/assets/tariff3.jpg';
+import CloseIcon from '@mui/icons-material/Close';
 
 export type EnergyPack = {
 	id: string;
-	amount: number; // количество молний (валюта)
+	title?: string;
+	amount: number; // базовое количество 
 	priceRub: number; // цена в рублях
-	bonusPercent?: number; // бонус в процентах
+	bonusPercent?: number; // бонус в процентах (если указан, bonusAmount игнорируется)
+	bonusAmount?: number; // фиксированный бонус в 
+	benefitPercent?: number; // выгода относительно базовой цены
+	image?: StaticImageData;
 	buttonLabel?: ReactNode;
 };
 
@@ -28,10 +36,9 @@ export type TopUpDialogProps = {
 };
 
 const defaultPacks: EnergyPack[] = [
-	{ id: 'p100', amount: 100, priceRub: 140 },
-	{ id: 'p240', amount: 240, priceRub: 290, bonusPercent: 15 },
-	{ id: 'p450', amount: 450, priceRub: 480, bonusPercent: 25 },
-	{ id: 'p1700', amount: 1700, priceRub: 1440, bonusPercent: 40 },
+	{ id: 'start', title: 'Старт', amount: 10, priceRub: 76, bonusAmount: 0, benefitPercent: 0, image: tariff1 },
+	{ id: 'opt', title: '🔥 Оптим', amount: 25, priceRub: 173, bonusAmount: 6, benefitPercent: 25, image: tariff2 },
+	{ id: 'max', title: '🔥 Максимум', amount: 100, priceRub: 704, bonusAmount: 50, benefitPercent: 50, image: tariff3 },
 ];
 
 const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
@@ -42,7 +49,15 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-			<Box sx={{ p: { xs: 2, sm: 3 } }}>
+			<Box sx={{ p: { xs: 2, sm: 3 }, position: 'relative' }}>
+				<IconButton
+					aria-label="Закрыть"
+					onClick={onClose}
+					sx={{ position: 'absolute', top: 8, right: 8 }}
+					color="primary"
+				>
+					<CloseIcon />
+				</IconButton>
 				<Typography variant="h4" sx={{ fontWeight: 800, mb: 1, textAlign: 'center' }}>
 					Ваш баланс: ⚡ {balance}
 				</Typography>
@@ -51,24 +66,39 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					{packs.map((pack, index) => (
 						<Box key={pack.id}>
 							<Stack direction="row" alignItems="center" spacing={2} sx={{ py: 2 }}>
-								<Avatar sx={{ bgcolor: 'warning.light', color: 'warning.contrastText', width: 56, height: 56 }}>
-									<BoltIcon />
-								</Avatar>
+								<Box
+									sx={{
+										width: 56,
+										height: 56,
+										borderRadius: 2,
+										overflow: 'hidden',
+										bgcolor: 'primary.light',
+										flexShrink: 0,
+									}}
+								>
+									{pack.image ? (
+										<Image src={pack.image} alt={pack.title ?? 'Пакет энергии'} width={56} height={56} />
+									) : null}
+								</Box>
 
 								<Box sx={{ flexGrow: 1 }}>
-									<Typography variant="h6" sx={{ fontWeight: 700 }}>
-										⚡ +{pack.amount}
-									</Typography>
-									{pack.bonusPercent ? (
-										<Typography variant="body1" sx={{ color: 'error.main', fontWeight: 600 }}>
-											Бонус {pack.bonusPercent}%
+									{pack.title ? (
+										<Typography variant="h6" sx={{ fontWeight: 800 }}>
+											{pack.title}
 										</Typography>
 									) : null}
+									<Typography variant="body1" sx={{ fontWeight: 700 }}>
+										⚡ {pack.amount} {(pack.bonusAmount ?? 0) > 0 ? ` + ⚡ ${pack.bonusAmount} в подарок` : ''}
+									</Typography>
+									<Typography variant="body2" color="text.secondary">
+										Всего: {pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))} 
+										{pack.benefitPercent ? ` • Бонус ${pack.benefitPercent}%` : ''}
+									</Typography>
 								</Box>
 
 								<Button
 									variant="contained"
-									color="error"
+									color="primary"
 									onClick={() => onBuy?.(pack)}
 									sx={{
 										borderRadius: 999,
@@ -88,7 +118,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 				</Box>
 
 				<Box sx={{ textAlign: 'center', mt: 2 }}>
-					<Button variant="text" color="error" onClick={onClose} sx={{ fontWeight: 700 }}>
+					<Button variant="text" color="primary" onClick={onClose} sx={{ fontWeight: 700 }}>
 						История действий
 					</Button>
 				</Box>
