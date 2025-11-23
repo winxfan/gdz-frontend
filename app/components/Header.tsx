@@ -12,13 +12,13 @@ import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
-import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import Dialog from '@mui/material/Dialog';
 import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
-import { userAtom, userLightningBalanceAtom } from '@/state/user';
+import { userAtom } from '@/state/user';
 import logoPng from '@/assets/gdz-logo.jpg';
+import BalanceButton from '@/components/BalanceButton';
+import TopUpDialog from '@/components/TopUpDialog';
 
 const subjects = [
 	{ label: 'Математика', href: '/mathematics' },
@@ -35,7 +35,6 @@ const subjects = [
 
 export default function Header() {
 	const [user, setUser] = useAtom(userAtom);
-	const [balance] = useAtom(userLightningBalanceAtom);
 	const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 	const [authOpen, setAuthOpen] = useState(false);
 	const [topUpOpen, setTopUpOpen] = useState(false);
@@ -72,14 +71,7 @@ export default function Header() {
 				<Box sx={{ flexGrow: 1 }} />
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-					<Button
-						variant="outlined"
-						color="primary"
-						onClick={() => setTopUpOpen(true)}
-						startIcon={<AddIcon />}
-					>
-						Баланс ответов: {balance}
-					</Button>
+					<BalanceButton onClick={() => setTopUpOpen(true)} />
 
 					{!user?.id && (
 						<Button color="primary" variant="contained" onClick={() => setAuthOpen(true)}>
@@ -97,15 +89,7 @@ export default function Header() {
 				</Box>
 
 				<AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
-				<Dialog open={topUpOpen} onClose={() => setTopUpOpen(false)} maxWidth="xs" fullWidth>
-					<Box sx={{ p: 3 }}>
-						<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Пополнение баланса</Typography>
-						<Typography color="text.secondary">Модалка пополнения будет реализована позже.</Typography>
-						<Box sx={{ textAlign: 'right', mt: 2 }}>
-							<Button onClick={() => setTopUpOpen(false)}>Закрыть</Button>
-						</Box>
-					</Box>
-				</Dialog>
+				<TopUpDialog open={topUpOpen} onClose={() => setTopUpOpen(false)} />
 			</Toolbar>
 		</AppBar>
 	);

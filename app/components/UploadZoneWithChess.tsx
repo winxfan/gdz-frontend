@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Divider, Typography } from '@mui/material';
 import FreeButton from '@/components/FreeButton';
 
 export type UploadZoneWithChessProps = {
@@ -9,6 +9,27 @@ export type UploadZoneWithChessProps = {
   backgroundOpacity?: number;
   disabled?: boolean;
 };
+
+type SubjectTag = {
+  label: string;
+  emoji: string;
+  bg: string;
+  color: string;
+};
+
+const SUBJECT_TAGS: ReadonlyArray<SubjectTag> = [
+  { label: 'Английский язык', emoji: '🇬🇧', bg: '#E3F2FD', color: '#0D47A1' },
+  { label: 'Математика', emoji: '➗', bg: '#FCE4EC', color: '#AD1457' },
+  { label: 'Русский язык', emoji: '🇷🇺', bg: '#F3E5F5', color: '#6A1B9A' },
+  { label: 'Алгебра', emoji: '🔢', bg: '#E8F5E9', color: '#1B5E20' },
+  { label: 'Геометрия', emoji: '📐', bg: '#FFF3E0', color: '#E65100' },
+  { label: 'История', emoji: '📜', bg: '#EFEBE9', color: '#4E342E' },  
+  { label: 'География', emoji: '🌍', bg: '#E0F7FA', color: '#006064' },
+  { label: 'Литература', emoji: '📖', bg: '#FFF8E1', color: '#5D4037' },
+  { label: 'Химия', emoji: '👩‍🔬', bg: '#E8F5E9', color: '#1B5E20' },
+  { label: 'Физика', emoji: '🔬', bg: '#FFF3E0', color: '#E65100' },
+  { label: 'Биология', emoji: '🐛', bg: '#EFEBE9', color: '#4E342E' },
+] as const;
 
 async function urlToFile(url: string, name?: string): Promise<File> {
   const res = await fetch(url);
@@ -20,7 +41,7 @@ async function urlToFile(url: string, name?: string): Promise<File> {
 export default function UploadZoneWithChess({
   onSelect,
   exampleImages,
-  buttonLabel = 'Сгенерируйте лицо с помощью ИИ',
+  buttonLabel = 'Загрузить фото задачи',
   backgroundOpacity = 0.5,
   disabled,
 }: UploadZoneWithChessProps) {
@@ -79,6 +100,30 @@ export default function UploadZoneWithChess({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      <Typography sx={{ fontWeight: 600, mb: 1, textAlign: 'center' }}>Решаем задачи по всем предметам:</Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: 1,
+          mb: 2,
+        }}
+      >
+        {SUBJECT_TAGS.map((s, i) => (
+          <Chip
+            key={`${s.label}-${i}`}
+            label={`${s.emoji} ${s.label}`}
+            size="small"
+            sx={{
+              backgroundColor: s.bg,
+              color: s.color,
+              fontWeight: 600,
+            }}
+          />
+        ))}
+      </Box>
+
       <FreeButton
         onChange={onSelect}
         label={buttonLabel}
@@ -87,7 +132,7 @@ export default function UploadZoneWithChess({
       />
 
       <Box sx={{ textAlign: 'center', mt: 2 }}>
-        <Typography sx={{ fontWeight: 600, mb: 1 }}>Или перетащите изображение сюда</Typography>
+        <Typography sx={{ fontWeight: 600, mb: 1, fontSize: 14  }}>Или перетащите изображение сюда</Typography>
         {exampleImages && (
           <Typography color="text.secondary" sx={{ mb: 1 }}>Нет изображения? Попробуйте наше:</Typography>
         )}

@@ -78,7 +78,7 @@ export default function SubjectOrClassPage({ params }: { params: { slug: string 
                                     'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=300&auto=format&fit=crop',
                                     'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?q=80&w=300&auto=format&fit=crop',
 								]}
-								buttonLabel="Загрузить фото задачи"
+								buttonLabel="Загрузить фото задачи 1⚡️"
 								backgroundOpacity={0.4}
 							/>
 						</Grid>
