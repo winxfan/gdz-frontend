@@ -25,6 +25,7 @@ export type EnergyPack = {
 	bonusAmount?: number; // фиксированный бонус в 
 	benefitPercent?: number; // выгода относительно базовой цены
 	image?: StaticImageData;
+	description?: string;
 	buttonLabel?: ReactNode;
 };
 
@@ -36,9 +37,38 @@ export type TopUpDialogProps = {
 };
 
 const defaultPacks: EnergyPack[] = [
-	{ id: 'start', title: 'Старт', amount: 10, priceRub: 76, bonusAmount: 0, benefitPercent: 0, image: tariff1 },
-	{ id: 'opt', title: 'Оптимальный', amount: 25, priceRub: 173, bonusAmount: 6, benefitPercent: 25, image: tariff2 },
-	{ id: 'max', title: 'Максимальный', amount: 100, priceRub: 704, bonusAmount: 50, benefitPercent: 50, image: tariff3 },
+	{
+		id: 'start',
+		title: 'Старт',
+		amount: 10,
+		priceRub: 76,
+		bonusAmount: 0,
+		benefitPercent: 0,
+		image: tariff1,
+		description: 'Реши несколько задач и ощути мощь молнии!',
+	},
+	{
+		id: 'opt',
+		title: 'Оптимальный',
+		amount: 25,
+		priceRub: 173,
+		bonusAmount: 6,
+		benefitPercent: 25,
+		image: tariff2,
+		description:
+			'Самый популярный вариант. Этого надолго хватит для учебы или работы. Получи +⚡️6 в подарок к своей энергии и решай задачи с запасом!',
+	},
+	{
+		id: 'max',
+		title: 'Максимальный',
+		amount: 100,
+		priceRub: 704,
+		bonusAmount: 50,
+		benefitPercent: 50,
+		image: tariff3,
+		description:
+			'Запасись молнией надолго и получи максимум выгоды. +⚡️50 в подарок — это целых 50 решений бесплатно!',
+	},
 ];
 
 const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
@@ -90,32 +120,35 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 											{pack.title}
 										</Typography>
 									) : null}
-									<Typography variant="body1" sx={{ fontWeight: 700 }}>
-										⚡{pack.amount} {(pack.bonusAmount ?? 0) > 0 ? ` + ⚡${pack.bonusAmount} в подарок` : ''}
-									</Typography>
+									{pack.description ? (
+										<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+											{pack.description}
+										</Typography>
+									) : null}
 									<Typography variant="body2" color="text.secondary">
 										Всего: {pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))} 
 										{pack.benefitPercent ? ` • Бонус ${pack.benefitPercent}%` : ''}
 									</Typography>
 								</Box>
+							</Stack>
 
-								<Button
-									variant="contained"
-									color="primary"
-									onClick={() => onBuy?.(pack)}
-									sx={{
-										borderRadius: 999,
-										px: 3,
-										py: 1.25,
-										textTransform: 'none',
-										fontWeight: 800,
-										whiteSpace: 'nowrap',
-									}}
-								>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => onBuy?.(pack)}
+                                sx={{
+                                    borderRadius: 999,
+                                    px: 3,
+                                    py: 1.25,
+                                    textTransform: 'none',
+                                    fontWeight: 800,
+                                    whiteSpace: 'nowrap',
+                                }}
+                                fullWidth
+                            >
 									{pack.buttonLabel ?? `Купить ⚡${pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))}  за ${pack.priceRub} рублей`}
 								</Button>
-							</Stack>
-							{index < packs.length - 1 && <Divider />}
+							{index < packs.length - 1 && <Divider sx={{ my: 2 }} />}
 						</Box>
 					))}
 				</Box>
