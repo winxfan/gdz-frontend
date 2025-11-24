@@ -10,12 +10,14 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
+import Divider from '@mui/material/Divider';
 import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
 import logoPng from '@/assets/gdz-logo.jpg';
 import BalanceButton from '@/components/BalanceButton';
 import TopUpDialog from '@/components/TopUpDialog';
+import AnonUserBadge from '@/components/AnonUserBadge';
 
 export default function Header() {
 	const [user, setUser] = useAtom(userAtom);
@@ -40,12 +42,9 @@ export default function Header() {
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
 					<BalanceButton onClick={() => setTopUpOpen(true)} />
+					<Divider orientation="vertical" flexItem sx={{ mx: 1.5 }} />
 
-					{!user?.id && (
-						<Button color="primary" variant="contained" onClick={() => setAuthOpen(true)}>
-							Вход или регистрация
-						</Button>
-					)}
+					{!user?.id && <AnonUserBadge />}
 
 					{user?.id && (
 						<IconButton size="small">
