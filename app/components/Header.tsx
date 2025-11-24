@@ -9,10 +9,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
@@ -20,22 +17,8 @@ import logoPng from '@/assets/gdz-logo.jpg';
 import BalanceButton from '@/components/BalanceButton';
 import TopUpDialog from '@/components/TopUpDialog';
 
-const subjects = [
-	{ label: 'Математика', href: '/mathematics' },
-	{ label: 'Русский язык', href: '/russian-language' },
-	{ label: 'Физика', href: '/physics' },
-	{ label: 'Химия', href: '/chemistry' },
-	{ label: 'Биология', href: '/biology' },
-	{ label: 'География', href: '/geography' },
-	{ label: 'История', href: '/history' },
-	{ label: 'Обществознание', href: '/social-science' },
-	{ label: 'Информатика', href: '/computer-science' },
-	{ label: 'Литература', href: '/literature' },
-];
-
 export default function Header() {
 	const [user, setUser] = useAtom(userAtom);
-	const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 	const [authOpen, setAuthOpen] = useState(false);
 	const [topUpOpen, setTopUpOpen] = useState(false);
 
@@ -51,22 +34,7 @@ export default function Header() {
 					</Box>
 				</Link>
 
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'wrap' }}>
-					<Button
-						color="inherit"
-						endIcon={<KeyboardArrowDownIcon />}
-						onClick={(e) => setMenuAnchor(e.currentTarget)}
-					>
-						Предметы
-					</Button>
-					<Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
-						{subjects.map((s) => (
-							<MenuItem key={s.href} component={Link as any} href={s.href} onClick={() => setMenuAnchor(null)}>
-								{s.label}
-							</MenuItem>
-						))}
-					</Menu>
-				</Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'wrap' }} />
 
 				<Box sx={{ flexGrow: 1 }} />
 

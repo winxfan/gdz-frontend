@@ -1,11 +1,10 @@
 'use client';
 
-import { Box, Container, Typography, Link as MLink, Paper } from '@mui/material';
+import { Box, Container, Typography, Paper } from '@mui/material';
 import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
 import FAQSection from '@/components/FAQSection';
-import NextLink from 'next/link';
 import infoblock1 from '@/assets/infoblock1.png';
 import infoblock2 from '@/assets/infoblock2.png';
 import infoblock3 from '@/assets/infoblock3.png';
@@ -171,11 +170,9 @@ export default function Page() {
 									</Box>
 									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 										{seg.list.map((slug) => (
-											<MLink key={slug} component={NextLink} href={`/${slug}`} underline="none">
-												<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-													{classLabel(slug)}
-												</Paper>
-											</MLink>
+											<Paper key={slug} elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
+												{classLabel(slug)}
+											</Paper>
 										))}
 									</Box>
 								</Box>
@@ -208,16 +205,9 @@ export default function Page() {
 								</Typography>
 								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 									{(seg.list || []).map((item, idx) => (
-										<MLink
-											key={`${item.title}-${idx}`}
-											component={NextLink}
-											href={`/${encodeURIComponent(item.title)}`}
-											underline="none"
-										>
-											<Paper elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-												{item.title}
-											</Paper>
-										</MLink>
+										<Paper key={`${item.title}-${idx}`} elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
+											{item.title}
+										</Paper>
 									))}
 								</Box>
 							</Paper>
