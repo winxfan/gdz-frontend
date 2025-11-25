@@ -24,7 +24,8 @@ export default function Header() {
 	const [authOpen, setAuthOpen] = useState(false);
 	const [topUpOpen, setTopUpOpen] = useState(false);
 
-	const initials = useMemo(() => (user?.name ? user.name.split(' ').map((p) => p[0]).slice(0, 2).join('') : 'U'), [user?.name]);
+	const display = user?.name || user?.username || '';
+	const initials = useMemo(() => (display ? display.split(' ').map((p) => p[0]).slice(0, 2).join('') : 'U'), [display]);
 
 	return (
 		<AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -44,9 +45,9 @@ export default function Header() {
 					<BalanceButton onClick={() => setTopUpOpen(true)} />
 					<Divider orientation="vertical" flexItem sx={{ mx: 1.5 }} />
 
-					{!user?.id && <AnonUserBadge />}
+					{!user?.isAuthorized && <AnonUserBadge />}
 
-					{user?.id && (
+					{user?.isAuthorized && (
 						<IconButton size="small">
 							<Avatar sx={{ width: 28, height: 28 }} src={user.avatarUrl || undefined}>
 								{initials}

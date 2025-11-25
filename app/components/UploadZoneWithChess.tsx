@@ -41,7 +41,7 @@ async function urlToFile(url: string, name?: string): Promise<File> {
 export default function UploadZoneWithChess({
   onSelect,
   exampleImages,
-  buttonLabel = 'Загрузить фото задачи',
+  buttonLabel = 'Загрузить фото задачи ⚡️1',
   backgroundOpacity = 0.5,
   disabled,
 }: UploadZoneWithChessProps) {

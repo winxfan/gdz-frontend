@@ -83,7 +83,7 @@ export default function Page() {
 						<Box sx={{ height: '100%' }}>
 							<UploadZoneWithChess
 								onSelect={handleSelect}
-								buttonLabel="Загрузить фото задачи 1⚡️"
+								buttonLabel="Загрузить фото задачи ⚡️1"
 								backgroundOpacity={0.4}
 							/>
 						</Box>

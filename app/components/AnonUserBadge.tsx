@@ -2,16 +2,21 @@
 
 import Skeleton from '@mui/material/Skeleton';
 import AvatarBadge from '@/components/avatar/AvatarBadge';
-import { useAvatarInfo } from '@/components/avatar/useAvatarInfo';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/state/user';
+import { avatarUrlById } from '@/components/avatar/images';
 
 export default function AnonUserBadge() {
-	const { data, loading } = useAvatarInfo();
+	const user = useAtomValue(userAtom);
 
-	if (loading || !data) {
+	const username = user?.username;
+	const avatarUrl = user?.avatarId ? avatarUrlById(user.avatarId) : undefined;
+
+	if (!username || !avatarUrl) {
 		return <Skeleton variant="rectangular" width={140} height={28} sx={{ borderRadius: 1 }} />;
 	}
 
-	return <AvatarBadge avatarUrl={data.avatarUrl} displayName={data.displayName} size={28} />;
+	return <AvatarBadge avatarUrl={avatarUrl} displayName={username} size={28} />;
 }
 
 

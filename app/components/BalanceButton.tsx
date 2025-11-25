@@ -1,8 +1,8 @@
 'use client';
 
 import Button from '@mui/material/Button';
-import { useAtom } from 'jotai';
-import { userLightningBalanceAtom } from '@/state/user';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/state/user';
 import { ReactNode } from 'react';
 
 export type BalanceButtonProps = {
@@ -15,7 +15,7 @@ export type BalanceButtonProps = {
  * Кнопка показа текущего баланса. Валюта — молнии.
  */
 export default function BalanceButton(props: BalanceButtonProps) {
-	const [balance] = useAtom(userLightningBalanceAtom);
+	const user = useAtomValue(userAtom);
 	const { onClick, size = 'medium' } = props;
 
 	return (
@@ -27,7 +27,7 @@ export default function BalanceButton(props: BalanceButtonProps) {
 			aria-label="Открыть пополнение баланса"
 			sx={{ whiteSpace: 'nowrap' }}
 		>
-			Баланс: ⚡ {balance}
+			Баланс: ⚡️{user?.tokens ?? 0}
 		</Button>
 	);
 }
