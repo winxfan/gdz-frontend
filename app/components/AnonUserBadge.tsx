@@ -5,8 +5,9 @@ import AvatarBadge from '@/components/avatar/AvatarBadge';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
 import { avatarUrlById } from '@/components/avatar/images';
+import ButtonBase from '@mui/material/ButtonBase';
 
-export default function AnonUserBadge() {
+export default function AnonUserBadge({ onOpenAuth }: { onOpenAuth?: () => void }) {
 	const user = useAtomValue(userAtom);
 
 	const username = user?.username;
@@ -16,7 +17,15 @@ export default function AnonUserBadge() {
 		return <Skeleton variant="rectangular" width={140} height={28} sx={{ borderRadius: 1 }} />;
 	}
 
-	return <AvatarBadge avatarUrl={avatarUrl} displayName={username} size={28} />;
+	return (
+		<ButtonBase
+			onClick={onOpenAuth}
+			sx={{ borderRadius: 2, px: 1, py: 0.5 }}
+			aria-label="Открыть окно авторизации"
+		>
+			<AvatarBadge avatarUrl={avatarUrl} displayName={username} size={28} />
+		</ButtonBase>
+	);
 }
 
 

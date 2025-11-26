@@ -9,7 +9,6 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import CloseIcon from '@mui/icons-material/Close';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { API_BASE } from '../config';
 import VkLogo from '@/assets/vk_logo.svg';
@@ -47,11 +46,6 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
     window.location.href = `${API_BASE}/api/v1/auth/oauth/${provider}/login`;
   };
 
-  const email = () => {
-    // Временная точка входа по почте - переведём в профиль
-    router.push('/profile');
-  };
-
   return (
     <Dialog open={!!open} onClose={close} fullWidth maxWidth="xs">
       <Box sx={{ p: 3 }}>
@@ -59,7 +53,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
             <div>
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Вход или регистрация</Typography>
           <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                Получите доступ к современным моделям генерации видео, изображений и текста.
+                Получите доступ к быстрому решению задач по фото.
             </Typography>
             </div>
           <IconButton onClick={close} size="small" aria-label="Закрыть">
@@ -122,23 +116,6 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
             Google
           </Button>
 
-          <Button onClick={email} variant="text" color="inherit" sx={{
-            justifyContent: 'flex-start',
-            bgcolor: 'action.hover',
-            '&:hover': { bgcolor: 'action.selected' },
-            py: 1.5,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontSize: 18,
-            fontWeight: 600,
-            color: 'text.primary',
-            px: 2,
-            gap: 1.5,
-          }}
-            startIcon={<Avatar sx={{ width: 28, height: 28, bgcolor: 'green.200', color: 'text.primary' }}><MailOutlineIcon fontSize="small" /></Avatar>}
-          >
-            Электронная почта
-          </Button>
         </Stack>
 
         <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>

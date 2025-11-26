@@ -32,14 +32,6 @@ export const userIpAtom = atom(
 	},
 );
 
-export const userLightningBalanceAtom = atom(
-	(get) => get(userAtom).lightningBalance ?? 0,
-	(get, set, value: number) => {
-		const current = get(userAtom);
-		set(userAtom, { ...current, lightningBalance: value });
-	},
-);
-
 export const resetUserAtom = atom(null, (_get, set) => {
 	set(userAtom, {});
 });

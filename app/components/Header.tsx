@@ -45,7 +45,7 @@ export default function Header() {
 					<BalanceButton onClick={() => setTopUpOpen(true)} />
 					<Divider orientation="vertical" flexItem sx={{ mx: 1.5 }} />
 
-					{!user?.isAuthorized && <AnonUserBadge />}
+					{!user?.isAuthorized && <AnonUserBadge onOpenAuth={() => setAuthOpen(true)} />}
 
 					{user?.isAuthorized && (
 						<IconButton size="small">

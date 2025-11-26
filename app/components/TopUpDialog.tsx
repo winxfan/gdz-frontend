@@ -7,8 +7,8 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
-import { useAtom } from 'jotai';
-import { userLightningBalanceAtom } from '@/state/user';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/state/user';
 import { ReactNode } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import tariff1 from '@/assets/tariff1.png';
@@ -74,7 +74,8 @@ const defaultPacks: EnergyPack[] = [
 const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
 
 export default function TopUpDialog(props: TopUpDialogProps) {
-	const [balance] = useAtom(userLightningBalanceAtom);
+	const user = useAtomValue(userAtom);
+	const tokens = user?.tokens ?? 0;
 	const { open, onClose, onBuy, packs = defaultPacks } = props;
 
 	return (
@@ -89,10 +90,10 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					<CloseIcon />
 				</IconButton>
 				<Typography variant="h4" sx={{ fontWeight: 800, mb: 1, textAlign: 'center' }}>
-					Ваш баланс: ⚡{balance}
+					Ваш баланс: ⚡️{tokens}
 				</Typography>
 				<Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 1.5 }}>
-					⚡1 = 1 решение задачи по фото
+					1 токен = 1 решение задачи по фото
 				</Typography>
 
 				<Box sx={{ mt: { xs: 1, sm: 2 } }}>
