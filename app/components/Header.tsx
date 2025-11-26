@@ -18,6 +18,8 @@ import logoPng from '@/assets/gdz-logo.jpg';
 import BalanceButton from '@/components/BalanceButton';
 import TopUpDialog from '@/components/TopUpDialog';
 import AnonUserBadge from '@/components/AnonUserBadge';
+import AvatarBadge from '@/components/avatar/AvatarBadge';
+import { avatarUrlById } from '@/components/avatar/images';
 
 export default function Header() {
 	const [user, setUser] = useAtom(userAtom);
@@ -48,11 +50,11 @@ export default function Header() {
 					{!user?.isAuthorized && <AnonUserBadge onOpenAuth={() => setAuthOpen(true)} />}
 
 					{user?.isAuthorized && (
-						<IconButton size="small">
-							<Avatar sx={{ width: 28, height: 28 }} src={user.avatarUrl || undefined}>
-								{initials}
-							</Avatar>
-						</IconButton>
+						<AvatarBadge
+							avatarUrl={user.avatarUrl || (user.avatarId ? avatarUrlById(user.avatarId) : '')}
+							displayName={user.name || user.username || ''}
+							size={28}
+						/>
 					)}
 				</Box>
 
