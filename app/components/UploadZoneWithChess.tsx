@@ -137,7 +137,7 @@ export default function UploadZoneWithChess({
       />
 
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-        Нажимая «Загрузить фото задачи», вы соглашаетесь с{' '}
+        Загружая фото, вы соглашаетесь с{' '}
         <MuiLink component={NextLink} href="/user-agreement" underline="hover">
           Пользовательским соглашением
         </MuiLink>
