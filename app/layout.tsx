@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import logoPng from '@/assets/gdz-logo.jpg';
+import 'katex/dist/katex.min.css';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Avatar, Box, Chip, Divider, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Divider, Typography, CircularProgress } from '@mui/material';
 import FreeButton from '@/components/FreeButton';
 
 export type UploadZoneWithChessProps = {
@@ -8,6 +8,7 @@ export type UploadZoneWithChessProps = {
   buttonLabel?: string;
   backgroundOpacity?: number;
   disabled?: boolean;
+  loading?: boolean;
 };
 
 type SubjectTag = {
@@ -44,18 +45,20 @@ export default function UploadZoneWithChess({
   buttonLabel = 'Загрузить фото задачи ⚡️1',
   backgroundOpacity = 0.5,
   disabled,
+  loading,
 }: UploadZoneWithChessProps) {
   const [isDrag, setIsDrag] = useState(false);
+  const isDisabled = Boolean(disabled || loading);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!disabled) setIsDrag(true);
+    if (!isDisabled) setIsDrag(true);
   };
   const handleDragLeave = () => setIsDrag(false);
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDrag(false);
-    if (disabled) return;
+    if (isDisabled) return;
     const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
     if (file) onSelect(file);
   };
@@ -75,14 +78,15 @@ export default function UploadZoneWithChess({
   }, [backgroundOpacity]);
 
   const selectExample = useCallback(async (url: string) => {
-    if (disabled) return;
+    if (isDisabled) return;
     const file = await urlToFile(url);
     onSelect(file);
-  }, [disabled, onSelect]);
+  }, [isDisabled, onSelect]);
 
   return (
     <Box
       sx={{
+        position: 'relative',
         p: { xs: 2, md: 3 },
         borderRadius: 1,
         boxShadow: 2,
@@ -128,7 +132,7 @@ export default function UploadZoneWithChess({
         onChange={onSelect}
         label={buttonLabel}
         fullWidth
-        disabled={disabled}
+        disabled={isDisabled}
       />
 
       <Box sx={{ textAlign: 'center', mt: 2 }}>
@@ -145,15 +149,34 @@ export default function UploadZoneWithChess({
               sx={{
                 width: 56, height: 56,
                 boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                cursor: disabled ? 'not-allowed' : 'pointer',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'transform .15s ease',
-                '&:hover': { transform: disabled ? 'none' : 'scale(1.06)' },
+                '&:hover': { transform: isDisabled ? 'none' : 'scale(1.06)' },
               }}
               onClick={() => selectExample(url)}
             />
           ))}
         </Box>
       </Box>
+      {loading && (
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: 1,
+            bgcolor: 'rgba(255,255,255,0.6)',
+            backdropFilter: 'blur(1px)',
+            borderRadius: 1,
+          }}
+        >
+          <CircularProgress />
+          <Typography color="text.secondary" sx={{ fontWeight: 600 }}>Загружаем фото…</Typography>
+        </Box>
+      )}
     </Box>
   );
 }

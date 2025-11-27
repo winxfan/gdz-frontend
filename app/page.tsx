@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography, Paper } from '@mui/material';
+import { Box, Container, Typography, Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Stack, Alert } from '@mui/material';
 import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
@@ -12,13 +12,137 @@ import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
 import faqItems from '../faq.json';
 import subjectsData from '@/subjects.json';
+import TopUpDialog from '@/components/TopUpDialog';
+import { useAtom } from 'jotai';
+import { userAtom } from '@/state/user';
+import { useCallback, useMemo, useState } from 'react';
+import { API_BASE } from './config';
+import ResultModal from '@/components/ResultModal';
 
 const classes = Array.from({ length: 11 }, (_, i) => `${i + 1}-class`);
 
 export default function Page() {
-	const handleSelect = async (file: File) => {
-		console.log('Selected file', file.name);
+	const [user, setUser] = useAtom(userAtom);
+	const [isWorking, setIsWorking] = useState(false);
+	const [topUpOpen, setTopUpOpen] = useState(false);
+
+	type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
+	type JobInfo = {
+		id: string;
+		status: JobStatus;
+		inputS3Url?: string;
+		detectedText?: string;
+		generatedText?: string;
+		errorMessage?: string | null;
 	};
+	const [jobDialogOpen, setJobDialogOpen] = useState(false);
+	const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
+	const [jobInfo, setJobInfo] = useState<JobInfo | null>(null);
+	const [jobError, setJobError] = useState<string | null>(null);
+	const [pollAttempt, setPollAttempt] = useState(0);
+	const [resultOpen, setResultOpen] = useState(false);
+	const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
+
+	const canSpendToken = (user?.tokens ?? 0) > 0;
+
+	const handleSelect = useCallback(async (file: File) => {
+		// Проверка баланса
+		if (!canSpendToken) {
+			setTopUpOpen(true);
+			return;
+		}
+		setIsWorking(true);
+		setJobDialogOpen(true);
+		setJobError(null);
+		setJobInfo(null);
+		setJobStatus('queued');
+		setPollAttempt(0);
+		// превью
+		try {
+			const previewUrl = URL.createObjectURL(file);
+			setUploadedPreviewUrl(previewUrl);
+		} catch {}
+		try {
+			// Формируем форму
+			const form = new FormData();
+			form.append('image', file, file.name);
+			if (user?.id) form.append('userId', user.id);
+
+			// Отправляем создание задачи
+			const res = await fetch(`${API_BASE}/api/v1/job`, {
+				method: 'POST',
+				body: form,
+				headers: {
+					...(user?.ip ? { 'x-user-ip': user.ip } : {}),
+				},
+				credentials: 'include',
+			});
+			if (res.status === 402) {
+				// Недостаточно токенов
+				setTopUpOpen(true);
+				setJobDialogOpen(false);
+				return;
+			}
+			if (res.status === 403) {
+				// Квота анонима исчерпана
+				setJobError('Достигнут лимит для анонимных пользователей. Войдите или пополните баланс.');
+				setJobStatus('failed');
+				return;
+			}
+			if (!res.ok) {
+				const text = await res.text().catch(() => '');
+				throw new Error(text || 'Не удалось создать задачу');
+			}
+			const payload = await res.json() as { jobId: string; status: JobStatus; tokensLeft?: number };
+			// Обновляем баланс, если сервер вернул
+			if (typeof payload.tokensLeft === 'number') {
+				setUser({ ...user, tokens: payload.tokensLeft });
+			}
+			// Поллинг статуса
+			const final = await pollJobUntilDone(payload.jobId);
+			setJobInfo(final);
+			setJobStatus(final.status);
+			if (final.status === 'failed') {
+				setJobError(final.errorMessage || 'Ошибка обработки задачи');
+			} else if (final.status === 'done') {
+				// Закрываем прогресс-диалог и показываем ResultModal
+				setJobDialogOpen(false);
+				setResultOpen(true);
+			}
+		} catch (e: any) {
+			setJobError(e?.message || 'Ошибка при создании задачи');
+			setJobStatus('failed');
+		} finally {
+			setIsWorking(false);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user, canSpendToken]);
+
+	async function pollJobUntilDone(jobId: string): Promise<JobInfo> {
+		const maxAttempts = 15;
+		const delayMs = 2000;
+		let attempt = 0;
+		while (attempt < maxAttempts) {
+			attempt += 1;
+			setPollAttempt(attempt);
+			const res = await fetch(`${API_BASE}/api/v1/job/${jobId}`, {
+				method: 'GET',
+				credentials: 'include',
+			});
+			if (!res.ok) {
+				const text = await res.text().catch(() => '');
+				throw new Error(text || `Не удалось получить статус задачи`);
+			}
+			const info = await res.json() as JobInfo;
+			setJobStatus(info.status);
+			if (info.status === 'done' || info.status === 'failed') {
+				return info;
+			}
+			// ждём и продолжаем
+			await new Promise((r) => setTimeout(r, delayMs));
+		}
+		throw new Error('Превышен лимит попыток ожидания результата. Попробуйте позже.');
+	}
 
 	function asUrl(mod: any): string {
 		return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
@@ -85,6 +209,8 @@ export default function Page() {
 								onSelect={handleSelect}
 								buttonLabel="Загрузить фото задачи ⚡️1"
 								backgroundOpacity={0.4}
+								disabled={isWorking}
+								loading={isWorking}
 							/>
 						</Box>
 					</Box>
@@ -143,6 +269,66 @@ export default function Page() {
 					/>
 				</Container>
 			</Box>
+
+			{/* Модалка пополнения */}
+			<TopUpDialog open={topUpOpen} onClose={() => setTopUpOpen(false)} />
+
+			{/* Диалог результата задачи */}
+			<Dialog open={jobDialogOpen} onClose={() => setJobDialogOpen(false)} maxWidth="md" fullWidth>
+				<DialogTitle>
+					{jobStatus === 'done' ? 'Готовое решение' : jobStatus === 'failed' ? 'Ошибка' : 'Обработка задачи'}
+				</DialogTitle>
+				<DialogContent dividers>
+					<Stack spacing={2}>
+						{jobStatus !== 'done' && jobStatus !== 'failed' ? (
+							<Stack spacing={1} alignItems="center">
+								<CircularProgress />
+								<Typography color="text.secondary">
+									Статус: {jobStatus ?? 'queued'} • Попытка {pollAttempt}/15
+								</Typography>
+							</Stack>
+						) : null}
+						{jobError ? <Alert severity="error">{jobError}</Alert> : null}
+						{jobStatus === 'done' && jobInfo ? (
+							<Stack spacing={2}>
+								<Box>
+									<Typography sx={{ fontWeight: 700, mb: 0.5 }}>Распознанный текст</Typography>
+									<Paper variant="outlined" sx={{ p: 2, whiteSpace: 'pre-wrap' }}>
+										{jobInfo.detectedText || '—'}
+									</Paper>
+								</Box>
+								<Box>
+									<Typography sx={{ fontWeight: 700, mb: 0.5 }}>Решение</Typography>
+									<Paper variant="outlined" sx={{ p: 2, whiteSpace: 'pre-wrap' }}>
+										{jobInfo.generatedText || '—'}
+									</Paper>
+								</Box>
+							</Stack>
+						) : null}
+					</Stack>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setJobDialogOpen(false)} variant="contained">
+						{jobStatus === 'done' || jobStatus === 'failed' ? 'Закрыть' : 'Свернуть'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Итоговое модальное окно с результатом */}
+			<ResultModal
+				open={resultOpen}
+				onClose={() => {
+					setResultOpen(false);
+					if (uploadedPreviewUrl) {
+						try {
+							URL.revokeObjectURL(uploadedPreviewUrl);
+						} catch {}
+					}
+					setUploadedPreviewUrl(null);
+				}}
+				imageSrc={uploadedPreviewUrl ?? undefined}
+				markdown={jobInfo?.generatedText ?? ''}
+			/>
 
 			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
 				<Container maxWidth="lg">
