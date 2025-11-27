@@ -6,7 +6,7 @@
    ```  
    Создать `VKID.Config.init` с параметрами:
    - `app`: ваш `OAUTH_VK_CLIENT_ID`;
-   - `redirectUrl`: `https://localhost:8000/api/v1/auth/oauth/vk/callback` (нужен для SDK, даже если backend обменивает код);
+   - `redirectUrl`: `https://localhost:8002/api/v1/auth/oauth/vk/callback` (нужен для SDK, даже если backend обменивает код);
    - `responseMode`: `VKID.ConfigResponseMode.Callback`;
    - `scope`: по потребности (минимум `vkid.personal_info`);
    - `codeChallenge`, `codeChallengeMethod = S256`, `state` — генерировать на фронтенде (PKCE).

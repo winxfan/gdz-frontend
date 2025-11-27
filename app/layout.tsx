@@ -4,13 +4,13 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
-import logoPng from '@/assets/gdz-logo.jpg';
+import logoPng from '@/assets/гдз-по-фото.рф-logo.jpg';
 import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3002';
 
 export const metadata: Metadata = {
 	title: {
