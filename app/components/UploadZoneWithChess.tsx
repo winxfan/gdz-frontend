@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Avatar, Box, Chip, Divider, Typography, CircularProgress } from '@mui/material';
+import { Avatar, Box, Chip, Typography, CircularProgress, Link as MuiLink } from '@mui/material';
+import NextLink from 'next/link';
 import FreeButton from '@/components/FreeButton';
 
 export type UploadZoneWithChessProps = {
@@ -134,6 +135,22 @@ export default function UploadZoneWithChess({
         fullWidth
         disabled={isDisabled}
       />
+
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+        Нажимая «Загрузить фото задачи», вы соглашаетесь с{' '}
+        <MuiLink component={NextLink} href="/user-agreement" underline="hover">
+          Пользовательским соглашением
+        </MuiLink>
+        ,{' '}
+        <MuiLink component={NextLink} href="/privacy" underline="hover">
+          Политикой конфиденциальности
+        </MuiLink>{' '}
+        и{' '}
+        <MuiLink component={NextLink} href="/personal-data" underline="hover">
+          Политикой обработки персональных данных
+        </MuiLink>
+        .
+      </Typography>
 
       <Box sx={{ textAlign: 'center', mt: 2 }}>
         <Typography sx={{ fontWeight: 600, mb: 1, fontSize: 14  }}>Или перетащите изображение сюда</Typography>
