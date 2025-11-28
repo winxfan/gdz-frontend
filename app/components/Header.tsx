@@ -30,20 +30,35 @@ export default function Header() {
 	const initials = useMemo(() => (display ? display.split(' ').map((p) => p[0]).slice(0, 2).join('') : 'U'), [display]);
 
 	return (
-		<AppBar position="sticky" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-			<Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
+		<AppBar position="fixed" color="default" sx={{ bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
+			<Toolbar sx={{ gap: { xs: 0, sm: 2 }, flexWrap: 'nowrap', overflowX: 'auto' }}>
 				<Link href="/" style={{ textDecoration: 'none', color: '#e55f5f' }}>
 					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-						<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} priority />
-						<Typography variant="h6" sx={{ fontWeight: 800 }}>гдз-по-фото.рф</Typography>
+						<Box sx={{ display: { xs: 'none', sm: 'inline-block' } }}>
+							<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} priority />
+						</Box>
+						<Typography
+							variant="h6"
+							sx={{
+								fontWeight: 800,
+								whiteSpace: { xs: 'normal', sm: 'nowrap' },
+								maxWidth: { xs: 100, sm: 'none' },
+								overflowWrap: 'break-word',
+								fontSize: { xs: '0.9rem', sm: 'inherit' },
+								lineHeight: { xs: 1.1, sm: 'inherit' },
+								display: 'block',
+							}}
+						>
+							гдз-по-фото.рф
+						</Typography>
 					</Box>
 				</Link>
 
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'wrap' }} />
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2, flexWrap: 'nowrap', minWidth: 0 }} />
 
 				<Box sx={{ flexGrow: 1 }} />
 
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'nowrap' }}>
 					<BalanceButton onClick={() => setTopUpOpen(true)} />
 					<Divider orientation="vertical" flexItem sx={{ mx: 1.5 }} />
 

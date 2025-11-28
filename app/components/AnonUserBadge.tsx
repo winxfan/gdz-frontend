@@ -6,9 +6,13 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
 import { avatarUrlById } from '@/components/avatar/images';
 import ButtonBase from '@mui/material/ButtonBase';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function AnonUserBadge({ onOpenAuth }: { onOpenAuth?: () => void }) {
 	const user = useAtomValue(userAtom);
+	const theme = useTheme();
+	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
 	const username = user?.username;
 	const avatarUrl = user?.avatarId ? avatarUrlById(user.avatarId) : undefined;
@@ -23,7 +27,7 @@ export default function AnonUserBadge({ onOpenAuth }: { onOpenAuth?: () => void 
 			sx={{ borderRadius: 2, px: 1, py: 0.5 }}
 			aria-label="Открыть окно авторизации"
 		>
-			<AvatarBadge avatarUrl={avatarUrl} displayName={username} size={28} />
+			<AvatarBadge avatarUrl={avatarUrl} displayName={isMobile ? '' : username} size={28} />
 		</ButtonBase>
 	);
 }

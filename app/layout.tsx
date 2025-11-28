@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google';
 import logoPng from '@/assets/gdz-logo.jpg';
 import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
+import Toolbar from '@mui/material/Toolbar';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
@@ -82,6 +83,7 @@ export default function RootLayout({
 			<body>
 				<Providers>
 					<Header />
+					<Toolbar />
 					{children}
 					<Footer />
 				</Providers>

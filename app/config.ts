@@ -1,1 +1,1 @@
-export const API_BASE = 'http://localhost:8002';
+export const API_BASE = 'https://xn--80aqu.xn-----glcep7bbaf7au.xn--p1ai';

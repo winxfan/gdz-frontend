@@ -182,8 +182,12 @@ export default function Page() {
 		<main>
 			<Box sx={{ py: { xs: 5, md: 8 } }}>
 				<Container maxWidth="lg">
-					<Typography component="h1" variant="h3" align="center" sx={{ fontWeight: 800, mb: 1 }}>
-					 	Решайте задачи по фото бесплатно с&nbsp;помощью&nbsp;ИИ 🎓 
+					<Typography
+						component="h1"
+						align="center"
+						sx={{ fontWeight: 800, mb: 1, typography: { xs: 'h4', md: 'h3' } }}
+					>
+					 	Решайте задачи по фото бесплатно с помощью ИИ 🎓
 					</Typography>
 					<Typography align="center" color="text.secondary" sx={{ mb: { xs: 4, md: 6 } }}>
 						Загрузите фотографию задания и мгновенно получите ответ. <br />
