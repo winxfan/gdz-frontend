@@ -1,11 +1,16 @@
-import { Box, Button, Paper, SxProps, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import type { SxProps } from '@mui/material/styles';
 
 export type InfoBlockProps = {
   title: string;
   description: string;
   image: string;
   buttonText: string;
-  onButtonClick: () => void;
+  onButtonClick?: () => void;
+  buttonHref?: string;
   imagePosition?: 'left' | 'right';
   sx?: SxProps;
   imageAlt?: string;
@@ -17,6 +22,7 @@ export default function InfoBlock({
   image,
   buttonText,
   onButtonClick,
+  buttonHref,
   imagePosition = 'left',
   sx,
   imageAlt,
@@ -54,7 +60,12 @@ export default function InfoBlock({
           </Typography>
           <Typography color="text.secondary">{description}</Typography>
           <Box>
-            <Button variant="contained" color="primary" onClick={onButtonClick}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={buttonHref ? undefined : onButtonClick}
+              href={buttonHref}
+            >
               {buttonText}
             </Button>
           </Box>
