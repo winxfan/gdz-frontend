@@ -13,7 +13,6 @@ import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
 import faqItems from '../faq.json';
 import lessonsData from '../lessons.json';
-import subjectsData from '@/subjects.json';
 import TopUpDialog from '@/components/TopUpDialog';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
@@ -149,34 +148,6 @@ export default function Page() {
 	function asUrl(mod: any): string {
 		return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
 	}
-
-	const subjectsByCategory = [
-		{ title: '📐 Математика', list: subjectsData['Математика'] },
-		{ title: '🧪 Естественные науки', list: subjectsData['Естественные науки'] },
-		{ title: '📚 Общественные науки', list: subjectsData['Общественные науки'] },
-		{ title: '🗣️ Гуманитарные науки', list: subjectsData['Гуманитарные науки'] },
-		{ title: '🛠️ Технология', list: subjectsData['Технология'] },
-		{ title: '🏃 Физическая культура', list: subjectsData['Физическая культура'] },
-		{ title: '🎨 Художественные науки', list: subjectsData['Художественные науки'] },
-	];
-
-	const parseClassNum = (slug: string) => Number(slug.split('-')[0]) || 0;
-	const classLabel = (slug: string) => {
-		const n = parseClassNum(slug);
-		return `${n} класс`;
-	};
-	const classesByStage = [
-		{ title: 'Начальная школа (1–4)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 1 && n <= 4; }) },
-		{ title: 'Основная школа (5–9)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 5 && n <= 9; }) },
-		{ title: 'Старшая школа (10–11)', list: classes.filter((s) => { const n = parseClassNum(s); return n >= 10 && n <= 11; }) },
-	] as const;
-
-	const stageLabelWithEmoji = (title: string) => {
-		if (title.startsWith('Начальная')) return `👶 ${title}`;
-		if (title.startsWith('Основная')) return `🧑‍🏫 ${title}`;
-		if (title.startsWith('Старшая')) return `🎓 ${title}`;
-		return title;
-	};
 
 	// Категории предметов уже содержат эмодзи в заголовке
 
@@ -336,82 +307,11 @@ export default function Page() {
 				markdown={jobInfo?.generatedText ?? ''}
 			/>
 
-			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
-				<Container maxWidth="lg">
-					<Typography variant="h2" sx={{ fontWeight: 700, mb: 2 }} align="center">
-						📚 Все школьные предметы и классы
-					</Typography>
-					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 2, md: 3 }, alignItems: 'stretch' }}>
-						{/* Единый блок с классами - тоже часть общей сетки */}
-						<Paper
-							elevation={0}
-							sx={(t) => ({
-								p: 3,
-								border: '1px solid',
-								borderColor: alpha(t.palette.primary.main, 0.25),
-								bgcolor: alpha(t.palette.primary.main, 0.06),
-							})}
-						>
-							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-								Классы
-							</Typography>
-							{classesByStage.map((seg) => (
-								<Box key={seg.title} sx={{ mb: 2 }}>
-									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'primary.main' }}>
-										<Typography sx={{ fontWeight: 600 }}>{stageLabelWithEmoji(seg.title)}</Typography>
-									</Box>
-									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-										{seg.list.map((slug) => (
-											<Paper key={slug} elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-												{classLabel(slug)}
-											</Paper>
-										))}
-									</Box>
-								</Box>
-							))}
-						</Paper>
-						{/* Карточки категорий предметов - те же правила сетки */}
-						{subjectsByCategory.map((seg, segIdx) => (
-							<Paper
-								key={seg.title}
-								elevation={0}
-								sx={(t) => {
-									const paletteCycle = [
-										t.palette.secondary.main,
-										t.palette.success.main,
-										t.palette.info.main,
-										t.palette.warning.main,
-										t.palette.error.main,
-									];
-									const base = paletteCycle[segIdx % paletteCycle.length];
-									return {
-										p: 2,
-										border: '1px solid',
-										borderColor: alpha(base, 0.25),
-										bgcolor: alpha(base, 0.06),
-									};
-								}}
-							>
-								<Typography sx={{ fontWeight: 700, mb: 1 }}>
-									{seg.title}
-								</Typography>
-								<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-									{(seg.list || []).map((item, idx) => (
-										<Paper key={`${item.title}-${idx}`} elevation={0} sx={{ px: 1.25, py: 0.5, border: '1px solid', borderColor: 'divider' }}>
-											{item.title}
-										</Paper>
-									))}
-								</Box>
-							</Paper>
-						))}
-					</Box>
-				</Container>
-			</Box>
 
 			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
 				<Container maxWidth="lg">
 					<Typography variant="h2" sx={{ fontWeight: 700, mb: 2 }} align="center">
-						🗂️ Уроки × Классы
+					📚 Все школьные предметы и классы
 					</Typography>
 					<LessonsTable data={lessonsData as unknown as LessonsInput} />
 				</Container>

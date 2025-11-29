@@ -17,6 +17,13 @@ function subjectByName(name: string): LessonItem | undefined {
 	return (lessons as LessonItem[]).find((s) => s.name === name);
 }
 
+export function generateStaticParams(): Params[] {
+	const items = lessons as LessonItem[];
+	const subjectSlugs = items.map((s) => ({ slug: s.name }));
+	const classSlugs = Array.from({ length: 11 }, (_, i) => ({ slug: `${i + 1}-class` }));
+	return [...subjectSlugs, ...classSlugs];
+}
+
 export default async function Page({ params }: { params: Params }) {
 	const { slug } = params;
 	const classPage = isClassSlug(slug);
