@@ -34,7 +34,7 @@ export default function Header() {
 			<Toolbar sx={{ gap: { xs: 0, sm: 2 }, flexWrap: 'nowrap', overflowX: 'auto' }}>
 				<Link href="/" style={{ textDecoration: 'none', color: '#e55f5f' }}>
 					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-						<Box sx={{ display: { xs: 'none', sm: 'inline-block' } }}>
+						<Box sx={{ display: { xs: 'none', sm: 'flex', alignItems: 'center' } }}>
 							<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} priority />
 						</Box>
 						<Typography
