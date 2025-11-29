@@ -1,33 +1,153 @@
-{
-    "Математика":        {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Русский язык":      {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Английский язык":   {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Литература":        {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Окружающий мир":    {"1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false},
-    "Информатика":       {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Музыка":            {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": false, "9": false, "10": false, "11": false},
-    "Технология":        {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false},
-    "Физкультура":       {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false},
-    "ИЗО":               {"1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false},
-    "Мир природы и человека": {"1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false},
-    "Немецкий язык":     {"1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Французский язык":  {"1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Физика":            {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "История":           {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "География":         {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Биология":          {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Обществознание":    {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "ОБЖ":               {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Естествознание":    {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false},
-    "Кубановедение":     {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false},
-    "Искусство":         {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false},
-    "Природоведение":    {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false},
-    "Китайский язык":    {"1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false},
-    "Экология":          {"1": false, "2": false, "3": false, "4": false, "5": false, "6": true, "7": false, "8": true, "9": false, "10": false, "11": false},
-    "Геометрия":         {"1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Алгебра":           {"1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Химия":             {"1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true},
-    "Черчение":          {"1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": false, "8": false, "9": true, "10": false, "11": false},
-    "Основы культуры":   {"1": false, "2": false, "3": false, "4": true, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false}
+[
+  {
+    "name": "matematika",
+    "title": "Математика",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "russkij-yazyk",
+    "title": "Русский язык",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "anglijskij-yazyk",
+    "title": "Английский язык",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "literatura",
+    "title": "Литература",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "okruzhayushij-mir",
+    "title": "Окружающий мир",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "informatika",
+    "title": "Информатика",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "muzyka",
+    "title": "Музыка",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": false, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "tehnologiya",
+    "title": "Технология",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false }
+  },
+  {
+    "name": "fizkultura",
+    "title": "Физкультура",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false }
+  },
+  {
+    "name": "izo",
+    "title": "ИЗО",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "mir-prirody-i-cheloveka",
+    "title": "Мир природы и человека",
+    "classes": { "1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "nemeckij-yazyk",
+    "title": "Немецкий язык",
+    "classes": { "1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "francuzskij-yazyk",
+    "title": "Французский язык",
+    "classes": { "1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "fizika",
+    "title": "Физика",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "istoriya",
+    "title": "История",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "geografiya",
+    "title": "География",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "biologiya",
+    "title": "Биология",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "obshestvoznanie",
+    "title": "Обществознание",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "obzh",
+    "title": "ОБЖ",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "estestvoznanie",
+    "title": "Естествознание",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "kubanovedenie",
+    "title": "Кубановедение",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false }
+  },
+  {
+    "name": "iskusstvo",
+    "title": "Искусство",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false }
+  },
+  {
+    "name": "prirodovedenie",
+    "title": "Природоведение",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "kitajskij-yazyk",
+    "title": "Китайский язык",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "ekologiya",
+    "title": "Экология",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": true, "7": false, "8": true, "9": false, "10": false, "11": false }
+  },
+  {
+    "name": "geometriya",
+    "title": "Геометрия",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "algebra",
+    "title": "Алгебра",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "himiya",
+    "title": "Химия",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
+  },
+  {
+    "name": "cherchenie",
+    "title": "Черчение",
+    "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": false, "8": false, "9": true, "10": false, "11": false }
+  },
+  {
+    "name": "osnovy-kultury",
+    "title": "Основы культуры",
+    "classes": { "1": false, "2": false, "3": false, "4": true, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
   }
+]
   

@@ -5,12 +5,14 @@ import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import HowToUseSteps from '@/components/HowToUseSteps';
 import InfoBlock from '@/components/InfoBlock';
 import FAQSection from '@/components/FAQSection';
+import LessonsTable, { LessonsInput } from '@/components/LessonsTable';
 import infoblock1 from '@/assets/infoblock1.png';
 import infoblock2 from '@/assets/infoblock2.png';
 import infoblock3 from '@/assets/infoblock3.png';
 import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
 import faqItems from '../faq.json';
+import lessonsData from '../lessons.json';
 import subjectsData from '@/subjects.json';
 import TopUpDialog from '@/components/TopUpDialog';
 import { useAtom } from 'jotai';
@@ -403,6 +405,15 @@ export default function Page() {
 							</Paper>
 						))}
 					</Box>
+				</Container>
+			</Box>
+
+			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
+				<Container maxWidth="lg">
+					<Typography variant="h2" sx={{ fontWeight: 700, mb: 2 }} align="center">
+						🗂️ Уроки × Классы
+					</Typography>
+					<LessonsTable data={lessonsData as unknown as LessonsInput} />
 				</Container>
 			</Box>
 
