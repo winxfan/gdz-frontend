@@ -14,7 +14,7 @@ export type HowToUseStepsProps = {
 export default function HowToUseSteps({ title = 'Как работает гдз по фото', steps }: HowToUseStepsProps) {
   return (
     <Box sx={{ maxWidth: 'lg', mx: 'auto' }}>
-      <Typography variant="h5" align="center" sx={{ fontWeight: 700, mb: 4 }}>
+      <Typography variant="h1" align="center" sx={{ fontWeight: 800, mb: 4, fontSize: { xs: '1rem', md: '1.5rem' } }}>
         {title}
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, alignItems: 'stretch' }}>

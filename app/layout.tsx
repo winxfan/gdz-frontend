@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 import Toolbar from '@mui/material/Toolbar';
 
-const inter = Inter({ subsets: ['latin', 'cyrillic'] });
+const inter = Inter({ subsets: ['latin', 'cyrillic'], weight: ['400', '700', '800'] });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3002';
 

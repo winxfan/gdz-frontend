@@ -185,9 +185,9 @@ export default function Page() {
 					<Typography
 						component="h1"
 						align="center"
-						sx={{ fontWeight: 800, mb: 1, typography: { xs: 'h4', md: 'h3' } }}
+						sx={{ fontWeight: 800, mb: 1, fontSize: { xs: '2rem', md: '2.5rem' } }}
 					>
-					 	Решайте задачи по фото бесплатно с помощью ИИ 🎓
+					 	Гдз по фото бесплатно с помощью ИИ 🎓
 					</Typography>
 					<Typography align="center" color="text.secondary" sx={{ mb: { xs: 4, md: 6 } }}>
 						Загрузите фотографию задания и мгновенно получите ответ. <br />
@@ -336,8 +336,8 @@ export default function Page() {
 
 			<Box sx={{ py: { xs: 5, md: 8 }, bgcolor: 'background.paper' }}>
 				<Container maxWidth="lg">
-					<Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} align="center">
-						📚 Любые предметы и все классы
+					<Typography variant="h2" sx={{ fontWeight: 700, mb: 2 }} align="center">
+						📚 Все школьные предметы и классы
 					</Typography>
 					<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 2, md: 3 }, alignItems: 'stretch' }}>
 						{/* Единый блок с классами - тоже часть общей сетки */}

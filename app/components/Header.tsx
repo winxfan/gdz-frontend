@@ -44,8 +44,8 @@ export default function Header() {
 								whiteSpace: { xs: 'normal', sm: 'nowrap' },
 								maxWidth: { xs: 100, sm: 'none' },
 								overflowWrap: 'break-word',
-								fontSize: { xs: '0.9rem', sm: 'inherit' },
-								lineHeight: { xs: 1.1, sm: 'inherit' },
+								fontSize: { xs: '0.92rem', sm: '1.15rem', md: '1.25rem' },
+								lineHeight: { xs: 1.1, sm: 1.2 },
 								display: 'block',
 							}}
 						>

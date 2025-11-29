@@ -49,7 +49,7 @@ export default function InfoBlock({
           />
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography variant="h2" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
             {title}
           </Typography>
           <Typography color="text.secondary">{description}</Typography>
