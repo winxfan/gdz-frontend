@@ -2,151 +2,181 @@
   {
     "name": "matematika",
     "title": "Математика",
+    "emoji": "➗",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "russkij-yazyk",
     "title": "Русский язык",
+    "emoji": "🇷🇺",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "anglijskij-yazyk",
     "title": "Английский язык",
+    "emoji": "🇬🇧",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "literatura",
     "title": "Литература",
+    "emoji": "📖",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "okruzhayushij-mir",
     "title": "Окружающий мир",
+    "emoji": "🌱",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false }
   },
   {
     "name": "informatika",
     "title": "Информатика",
+    "emoji": "💻",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "muzyka",
     "title": "Музыка",
+    "emoji": "🎵",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": false, "9": false, "10": false, "11": false }
   },
   {
     "name": "tehnologiya",
     "title": "Технология",
+    "emoji": "🛠️",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false }
   },
   {
     "name": "fizkultura",
     "title": "Физкультура",
+    "emoji": "🏃‍♂️",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": false, "11": false }
   },
   {
     "name": "izo",
     "title": "ИЗО",
+    "emoji": "🎨",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false }
   },
   {
     "name": "mir-prirody-i-cheloveka",
     "title": "Мир природы и человека",
+    "emoji": "🌿",
     "classes": { "1": true, "2": true, "3": true, "4": true, "5": false, "6": false, "7": false, "8": false, "9": false, "10": false, "11": false }
   },
   {
     "name": "nemeckij-yazyk",
     "title": "Немецкий язык",
+    "emoji": "🇩🇪",
     "classes": { "1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "francuzskij-yazyk",
     "title": "Французский язык",
+    "emoji": "🇫🇷",
     "classes": { "1": false, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "fizika",
     "title": "Физика",
+    "emoji": "🔬",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "istoriya",
     "title": "История",
+    "emoji": "📜",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "geografiya",
     "title": "География",
+    "emoji": "🌍",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "biologiya",
     "title": "Биология",
+    "emoji": "🐛",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "obshestvoznanie",
     "title": "Обществознание",
+    "emoji": "🧑‍🤝‍🧑",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "obzh",
     "title": "ОБЖ",
+    "emoji": "🛡️",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "estestvoznanie",
     "title": "Естествознание",
+    "emoji": "🧪",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
   },
   {
     "name": "kubanovedenie",
     "title": "Кубановедение",
+    "emoji": "🏞️",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false }
   },
   {
     "name": "iskusstvo",
     "title": "Искусство",
+    "emoji": "🎭",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": true, "10": true, "11": false }
   },
   {
     "name": "prirodovedenie",
     "title": "Природоведение",
+    "emoji": "🌿",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
   },
   {
     "name": "kitajskij-yazyk",
     "title": "Китайский язык",
+    "emoji": "🇨🇳",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": true, "6": true, "7": true, "8": true, "9": false, "10": false, "11": false }
   },
   {
     "name": "ekologiya",
     "title": "Экология",
+    "emoji": "♻️",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": true, "7": false, "8": true, "9": false, "10": false, "11": false }
   },
   {
     "name": "geometriya",
     "title": "Геометрия",
+    "emoji": "📐",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "algebra",
     "title": "Алгебра",
+    "emoji": "🔢",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "himiya",
     "title": "Химия",
+    "emoji": "👩‍🔬",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": true, "8": true, "9": true, "10": true, "11": true }
   },
   {
     "name": "cherchenie",
     "title": "Черчение",
+    "emoji": "📏",
     "classes": { "1": false, "2": false, "3": false, "4": false, "5": false, "6": false, "7": false, "8": false, "9": true, "10": false, "11": false }
   },
   {
     "name": "osnovy-kultury",
     "title": "Основы культуры",
+    "emoji": "🏛️",
     "classes": { "1": false, "2": false, "3": false, "4": true, "5": true, "6": true, "7": false, "8": false, "9": false, "10": false, "11": false }
   }
 ]

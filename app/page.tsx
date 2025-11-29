@@ -9,7 +9,6 @@ import LessonsTable, { LessonsInput } from '@/components/LessonsTable';
 import infoblock1 from '@/assets/infoblock1.png';
 import infoblock2 from '@/assets/infoblock2.png';
 import infoblock3 from '@/assets/infoblock3.png';
-import { alpha } from '@mui/material/styles';
 import Banner1 from '@/assets/banner-1.png';
 import faqItems from '../faq.json';
 import lessonsData from '../lessons.json';
