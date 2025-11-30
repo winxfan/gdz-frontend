@@ -1,4 +1,6 @@
-import { Box, Divider, Paper, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
 export type StepItem = {
   title: string;
@@ -8,7 +10,7 @@ export type StepItem = {
 
 export type HowToUseStepsProps = {
   title?: string;
-  steps: StepItem[];
+  steps: readonly StepItem[];
 };
 
 export default function HowToUseSteps({ title = 'Как работает гдз по фото', steps }: HowToUseStepsProps) {

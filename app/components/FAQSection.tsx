@@ -1,3 +1,5 @@
+ 'use client';
+
 import { useMemo, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

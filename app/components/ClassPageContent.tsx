@@ -329,3 +329,4 @@ export default function ClassPageContent({ title, infoBlocks }: ClassPageContent
 }
 
 
+
