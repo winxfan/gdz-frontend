@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
 import { ReactNode } from 'react';
@@ -72,6 +73,14 @@ const defaultPacks: EnergyPack[] = [
 ];
 
 const rub = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
+const rubPerToken = new Intl.NumberFormat('ru-RU', {
+	style: 'currency',
+	currency: 'RUB',
+	maximumFractionDigits: 2,
+});
+
+const getTotalTokens = (pack: EnergyPack) =>
+	pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)));
 
 export default function TopUpDialog(props: TopUpDialogProps) {
 	const user = useAtomValue(userAtom);
@@ -93,33 +102,72 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					Ваш баланс: ⚡️{tokens}
 				</Typography>
 				<Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 1.5 }}>
-					1 токен = 1 решение задачи по фото
+				  ⚡️1 = 1 решение задачи по фото
 				</Typography>
 
 				<Box sx={{ mt: { xs: 1, sm: 2 } }}>
-					{packs.map((pack, index) => (
-						<Box key={pack.id}>
-							<Stack direction="row" alignItems="center" spacing={2} sx={{ py: 2 }}>
+					{packs.map((pack, index) => {
+						const totalTokens = getTotalTokens(pack);
+						const pricePerToken = pack.priceRub / totalTokens;
+						const formattedPricePerToken = rubPerToken.format(pricePerToken);
+
+						return (
+							<Box key={pack.id}>
+								<Stack direction="row" alignItems="center" spacing={2} sx={{ py: 2 }}>
 								<Box
 									sx={{
-										width: 56,
-										height: 56,
-										borderRadius: 2,
+										width: 64,
+										height: 64,
+										borderRadius: 0.5,
 										overflow: 'hidden',
 										bgcolor: 'primary.light',
 										flexShrink: 0,
 									}}
 								>
 									{pack.image ? (
-										<Image src={pack.image} alt={pack.title ?? 'Пакет энергии'} width={56} height={56} />
+										<Image src={pack.image} alt={pack.title ?? 'Пакет энергии'} width={64} height={64} />
 									) : null}
 								</Box>
 
 								<Box sx={{ flexGrow: 1 }}>
-									{pack.title ? (
-										<Typography variant="h6" sx={{ fontWeight: 800 }}>
-											{pack.title}
-										</Typography>
+									{pack.title || pack.benefitPercent || pack.bonusAmount ? (
+										<Stack
+											direction="row"
+											spacing={1}
+											alignItems="center"
+											flexWrap="wrap"
+											sx={{ mb: 0.75 }}
+										>
+											{pack.title ? (
+												<Typography variant="h6" sx={{ fontWeight: 800 }}>
+													{pack.title}
+												</Typography>
+											) : null}
+											{pack.benefitPercent ? (
+												<Chip
+													label={`Бонус ${pack.benefitPercent}%`}
+													size="small"
+													sx={{
+														fontWeight: 700,
+														bgcolor: 'success.light',
+														color: 'success.dark',
+														'& .MuiChip-label': { px: 1.25 },
+													}}
+												/>
+											) : null}
+											{pack.bonusAmount ? (
+												<Chip
+													label={`+⚡️${pack.bonusAmount} в подарок`}
+													size="small"
+													sx={{
+														fontWeight: 700,
+														bgcolor: 'success.light',
+														color: 'success.dark',
+														'& .MuiChip-label': { px: 1.25 },
+													}}
+												/>
+											) : null}
+										</Stack>
 									) : null}
 									{pack.description ? (
 										<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
@@ -127,31 +175,31 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 										</Typography>
 									) : null}
 									<Typography variant="body2" color="text.secondary">
-										Всего: {pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))} 
-										{pack.benefitPercent ? ` • Бонус ${pack.benefitPercent}%` : ''}
+										Стоимость 1 токена: {formattedPricePerToken}
 									</Typography>
 								</Box>
 							</Stack>
 
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => onBuy?.(pack)}
-                                sx={{
-                                    borderRadius: 999,
-                                    px: 3,
-                                    py: 1.25,
-                                    textTransform: 'none',
-                                    fontWeight: 800,
-                                    whiteSpace: 'nowrap',
-                                }}
-                                fullWidth
-                            >
-									{pack.buttonLabel ?? `Купить ⚡${pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)))}  за ${pack.priceRub} рублей`}
-								</Button>
+							<Button
+								variant="contained"
+								color="primary"
+								onClick={() => onBuy?.(pack)}
+								sx={{
+									borderRadius: 999,
+									px: 3,
+									py: 1.25,
+									textTransform: 'none',
+									fontWeight: 800,
+									whiteSpace: 'nowrap',
+								}}
+								fullWidth
+							>
+								{pack.buttonLabel ?? `Купить ⚡${totalTokens} за ${rub.format(pack.priceRub)}`}
+							</Button>
 							{index < packs.length - 1 && <Divider sx={{ my: 2 }} />}
 						</Box>
-					))}
+					);
+					})}
 				</Box>
 			</Box>
 		</Dialog>
