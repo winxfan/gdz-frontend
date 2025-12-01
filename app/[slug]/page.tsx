@@ -1,7 +1,8 @@
 import classesContent from '../../classes_content.json';
 import lessons from '../../lessons.json';
 import lessonsContent from '../../lessons_content.json';
-import { PageContent, type PageInfoBlock } from '@/page';
+import lessonsDescriptions from '../../lessons_descriptions.json';
+import { PageContent, type PageInfoBlock, DEFAULT_PAGE_DESCRIPTION } from '@/page';
 
 type Params = { slug: string };
 
@@ -17,6 +18,12 @@ type ContentEntry = {
 };
 
 type ContentMap = Record<string, ContentEntry>;
+
+type DescriptionEntry = {
+	description: string;
+};
+
+type DescriptionMap = Record<string, DescriptionEntry>;
 
 function isClassSlug(slug: string): boolean {
 	return /^(?:[1-9]|10|11)-class$/.test(slug);
@@ -39,20 +46,24 @@ export default function Page({ params }: { params: Params }) {
 
 	const classesContentMap = classesContent as ContentMap;
 	const lessonsContentMap = lessonsContent as ContentMap;
+	const lessonsDescriptionsMap = lessonsDescriptions as DescriptionMap;
 
 	let title = '';
 	let content: ContentEntry | null = null;
+	let description: string | undefined;
 	if (classPage) {
 		const n = slug.split('-')[0];
 		content = classesContentMap[n] ?? null;
 		title = content?.title || `${n} класс`;
+		description = DEFAULT_PAGE_DESCRIPTION;
 	} else {
 		const subj = subjectByName(slug);
 		content = lessonsContentMap[slug] ?? null;
 		title = content?.title || subj?.title || slug;
+		description = lessonsDescriptionsMap[slug]?.description ?? DEFAULT_PAGE_DESCRIPTION;
 	}
 
-	return <PageContent title={title} infoBlocks={content?.blocks ?? []} />;
+	return <PageContent title={title} description={description} infoBlocks={content?.blocks ?? []} />;
 }
 
 

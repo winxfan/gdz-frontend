@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Fragment } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -33,6 +34,9 @@ const HOW_TO_USE_STEPS = [
 			'Наш ИИ моментально обработает фото и выдаст понятный, аккуратный и точный ответ. Если результат не подошёл - просто загрузите другое фото или уточните запрос, и мы сгенерируем новое решение ⚡📘',
 	},
 ] as const;
+
+export const DEFAULT_PAGE_DESCRIPTION =
+	'Загрузите фотографию задания и мгновенно получите ответ. Нейросеть объяснит решение и поможет разобраться в задаче 📸✨';
 
 const DEFAULT_INFO_BLOCKS = [
 	{
@@ -83,6 +87,7 @@ export type PageInfoBlock = {
 
 export type PageContentProps = {
 	title: string;
+	description?: string;
 	infoBlocks?: PageInfoBlock[];
 };
 
@@ -94,8 +99,17 @@ function resolveInfoBlocks(infoBlocks?: PageInfoBlock[]) {
 	}));
 }
 
-export function PageContent({ title, infoBlocks }: PageContentProps) {
+function splitDescription(text: string): string[] {
+	return text
+		.split(/(?<=[.!?])\s+/u)
+		.map((part) => part.trim())
+		.filter(Boolean);
+}
+
+export function PageContent({ title, description, infoBlocks }: PageContentProps) {
 	const resolvedBlocks = resolveInfoBlocks(infoBlocks);
+	const heroDescription = description ?? DEFAULT_PAGE_DESCRIPTION;
+	const heroDescriptionLines = splitDescription(heroDescription);
 
 	return (
 		<main>
@@ -109,8 +123,14 @@ export function PageContent({ title, infoBlocks }: PageContentProps) {
 						{title}
 					</Typography>
 					<Typography align="center" color="text.secondary" sx={{ mb: { xs: 4, md: 6 } }}>
-						Загрузите фотографию задания и мгновенно получите ответ. <br />
-						Нейросеть объяснит решение и поможет разобраться в задаче 📸✨
+						{heroDescriptionLines.length === 0
+							? heroDescription
+							: heroDescriptionLines.map((line, index) => (
+									<Fragment key={`${line}-${index}`}>
+										{line}
+										{index < heroDescriptionLines.length - 1 && <br />}
+									</Fragment>
+							  ))}
 					</Typography>
 
 					<Box
@@ -178,6 +198,7 @@ export default function Page() {
 	return (
 		<PageContent
 			title="Гдз по фото бесплатно с помощью ИИ 🎓"
+			description={DEFAULT_PAGE_DESCRIPTION}
 			infoBlocks={DEFAULT_INFO_BLOCKS.map(({ title, description }) => ({ title, description }))}
 		/>
 	);
