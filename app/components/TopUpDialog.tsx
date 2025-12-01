@@ -1,5 +1,6 @@
 'use client';
 
+import Alert from '@mui/material/Alert';
 import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -8,17 +9,20 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
-import { ReactNode } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import tariff1 from '@/assets/tariff1.webp';
 import tariff2 from '@/assets/tariff2.webp';
 import tariff3 from '@/assets/tariff3.webp';
 import CloseIcon from '@mui/icons-material/Close';
+import { API_BASE } from '@/config';
 
 export type EnergyPack = {
-	id: string;
+	id: number;
+	tariffId?: string;
 	title?: string;
 	amount: number; // базовое количество 
 	priceRub: number; // цена в рублях
@@ -39,7 +43,8 @@ export type TopUpDialogProps = {
 
 const defaultPacks: EnergyPack[] = [
 	{
-		id: 'start',
+		id: 1,
+		tariffId: '1',
 		title: 'Старт',
 		amount: 10,
 		priceRub: 76,
@@ -49,7 +54,8 @@ const defaultPacks: EnergyPack[] = [
 		description: 'Реши несколько задач и ощути мощь молнии!',
 	},
 	{
-		id: 'opt',
+		id: 2,
+		tariffId: '2',
 		title: 'Оптимальный',
 		amount: 25,
 		priceRub: 173,
@@ -60,10 +66,11 @@ const defaultPacks: EnergyPack[] = [
 			'Самый популярный вариант. Этого надолго хватит для учебы или работы. Получи +⚡️6 в подарок к своей энергии и решай задачи с запасом!',
 	},
 	{
-		id: 'max',
+		id: 3,
+		tariffId: '3',
 		title: 'Максимальный',
 		amount: 100,
-		priceRub: 704,
+		priceRub: 701,
 		bonusAmount: 50,
 		benefitPercent: 50,
 		image: tariff3,
@@ -82,10 +89,92 @@ const rubPerToken = new Intl.NumberFormat('ru-RU', {
 const getTotalTokens = (pack: EnergyPack) =>
 	pack.amount + (pack.bonusAmount ?? Math.round(pack.amount * ((pack.bonusPercent ?? 0) / 100)));
 
+type PaymentIntentResponse = {
+	id: string;
+	provider: string;
+	amountRub: number;
+	currency: string;
+	paymentUrl?: string | null;
+	payment_url?: string | null;
+	reference: string;
+	paymentId?: string | null;
+	tariffId: string;
+	tokens: number;
+};
+
 export default function TopUpDialog(props: TopUpDialogProps) {
 	const user = useAtomValue(userAtom);
 	const tokens = user?.tokens ?? 0;
+	const userId = user?.id;
+	const userIp = user?.ip;
 	const { open, onClose, onBuy, packs = defaultPacks } = props;
+	const [loadingPackId, setLoadingPackId] = useState<number | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!open) {
+			setError(null);
+			setLoadingPackId(null);
+		}
+	}, [open]);
+
+	const handleBuy = useCallback(
+		async (pack: EnergyPack) => {
+			if (!userId) {
+				setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
+				return;
+			}
+
+			setError(null);
+			setLoadingPackId(pack.id);
+
+			try {
+				const idempotencyKey =
+					typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+						? crypto.randomUUID()
+						: `topup-${pack.id}-${Date.now()}`;
+
+				const res = await fetch(`${API_BASE}/api/v1/payments/intents`, {
+					method: 'POST',
+					headers: {
+						'content-type': 'application/json',
+						...(userIp ? { 'x-user-ip': userIp } : {}),
+						...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+					},
+					credentials: 'include',
+					body: JSON.stringify({
+						user_id: userId,
+						tariff_id: pack.tariffId ?? String(pack.id),
+						provider: 'yookassa',
+						description: pack.description ?? `Пополнение баланса на ⚡️${getTotalTokens(pack)}`,
+					}),
+				});
+
+				if (!res.ok) {
+					const errorText = await res.text().catch(() => '');
+					throw new Error(errorText || 'Не удалось создать ссылку на оплату. Попробуйте позже.');
+				}
+
+				const payload = (await res.json()) as PaymentIntentResponse;
+				const paymentUrl = payload.paymentUrl ?? payload.payment_url ?? null;
+
+				if (!paymentUrl) {
+					throw new Error('Ссылка на оплату не получена. Попробуйте позже.');
+				}
+
+				onBuy?.(pack);
+
+				window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+			} catch (err) {
+				const message =
+					err instanceof Error ? err.message : 'Ошибка при создании ссылки на оплату. Попробуйте позже.';
+				setError(message);
+			} finally {
+				setLoadingPackId(null);
+			}
+		},
+		[onBuy, userId, userIp],
+	);
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -104,12 +193,18 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 				<Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 1.5 }}>
 				  ⚡️1 = 1 решение задачи по фото
 				</Typography>
+				{error ? (
+					<Alert severity="error" sx={{ mb: 2 }}>
+						{error}
+					</Alert>
+				) : null}
 
 				<Box sx={{ mt: { xs: 1, sm: 2 } }}>
 					{packs.map((pack, index) => {
 						const totalTokens = getTotalTokens(pack);
 						const pricePerToken = pack.priceRub / totalTokens;
 						const formattedPricePerToken = rubPerToken.format(pricePerToken);
+						const isLoading = loadingPackId === pack.id;
 
 						return (
 							<Box key={pack.id}>
@@ -189,7 +284,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 							<Button
 								variant="contained"
 								color="primary"
-								onClick={() => onBuy?.(pack)}
+								onClick={() => void handleBuy(pack)}
 								sx={{
 									borderRadius: 999,
 									px: 3,
@@ -199,8 +294,14 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 									whiteSpace: 'nowrap',
 								}}
 								fullWidth
+								disabled={Boolean(loadingPackId)}
+								startIcon={
+									isLoading ? <CircularProgress color="inherit" size={18} thickness={5} /> : undefined
+								}
 							>
-								{pack.buttonLabel ?? `Купить ⚡${totalTokens} за ${rub.format(pack.priceRub)}`}
+								{isLoading
+									? 'Создаём ссылку...'
+									: pack.buttonLabel ?? `Купить ⚡${totalTokens} за ${rub.format(pack.priceRub)}`}
 							</Button>
 							{index < packs.length - 1 && <Divider sx={{ my: 2 }} />}
 						</Box>
