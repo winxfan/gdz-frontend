@@ -4,7 +4,7 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
-import logoPng from '@/assets/gdz-logo.jpg';
+import logoPng from '@/assets/gdz-logo.webp';
 import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 import Toolbar from '@mui/material/Toolbar';
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
 		},
 	},
 	icons: {
-		icon: [{ url: logoPng.src, sizes: 'any', type: 'image/png' }],
+		icon: [{ url: logoPng.src, sizes: 'any', type: 'image/webp' }],
 	},
 };
 

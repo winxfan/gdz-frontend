@@ -15,7 +15,7 @@ import {
 	Chip,
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { useTheme, lighten } from '@mui/material/styles';
+import { useTheme, lighten, type Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export type ClassNumber =
@@ -37,7 +37,7 @@ export type LessonsTableProps = {
 	minTableWidth?: number;
 };
 
-const colorForClass = (cls: ClassNumber, palette: ReturnType<typeof useTheme>['palette']): string => {
+const colorForClass = (cls: ClassNumber, palette: Theme['palette']): string => {
 	const n = Number(cls);
 	const base =
 		n >= 1 && n <= 4

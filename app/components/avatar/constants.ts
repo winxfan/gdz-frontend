@@ -40,7 +40,7 @@ export type AvatarInfo = {
 	animalId: number; // 1..5
 	animalRu: string;
 	displayName: string;
-	avatarUrl: string; // /assets/avatars/avatar{n}.png
+	avatarUrl: string; // /assets/avatars/avatar{n}.webp
 };
 
 

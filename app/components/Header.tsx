@@ -14,7 +14,7 @@ import Divider from '@mui/material/Divider';
 import AuthDialog from '@/components/AuthDialog';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
-import logoPng from '@/assets/gdz-logo.jpg';
+import logoPng from '@/assets/gdz-logo.webp';
 import BalanceButton from '@/components/BalanceButton';
 import TopUpDialog from '@/components/TopUpDialog';
 import AnonUserBadge from '@/components/AnonUserBadge';

@@ -39,7 +39,7 @@ export function getAvatarAndNameByIp(ip: string): AvatarInfo {
 	const adj = adjectives[adjIndex];
 	const adjectiveForm = animal.gender === 'f' ? adj.fem : adj.masc;
 	const displayName = `${adjectiveForm} ${animal.ru}`;
-	const avatarUrl = `/assets/avatars/avatar${animal.id}.png`;
+	const avatarUrl = `/assets/avatars/avatar${animal.id}.webp`;
 	return {
 		animalId: animal.id,
 		animalRu: animal.ru,

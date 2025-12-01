@@ -12,9 +12,9 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
 import { ReactNode } from 'react';
 import Image, { StaticImageData } from 'next/image';
-import tariff1 from '@/assets/tariff1.png';
-import tariff2 from '@/assets/tariff2.jpg';
-import tariff3 from '@/assets/tariff3.jpg';
+import tariff1 from '@/assets/tariff1.webp';
+import tariff2 from '@/assets/tariff2.webp';
+import tariff3 from '@/assets/tariff3.webp';
 import CloseIcon from '@mui/icons-material/Close';
 
 export type EnergyPack = {

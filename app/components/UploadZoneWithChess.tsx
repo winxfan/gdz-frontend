@@ -36,7 +36,7 @@ const SUBJECT_TAGS: ReadonlyArray<SubjectTag> = [
 async function urlToFile(url: string, name?: string): Promise<File> {
   const res = await fetch(url);
   const blob = await res.blob();
-  const fileName = name || url.split('/').pop() || 'example.jpg';
+  const fileName = name || url.split('/').pop() || 'example.webp';
   return new File([blob], fileName, { type: blob.type });
 }
 

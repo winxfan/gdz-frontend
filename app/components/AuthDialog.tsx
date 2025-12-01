@@ -109,9 +109,9 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
 
   const close = () => {
     if (onClose) return onClose();
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.delete('auth');
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString() ?? ''}`);
   };
 
   const oauth = (provider: 'vk' | 'yandex' | 'google') => {
