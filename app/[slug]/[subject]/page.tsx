@@ -1,5 +1,5 @@
-import { Container, Typography, Box, Paper } from '@mui/material';
 import lessons from '../../../lessons.json';
+import { PageContent } from '@/page';
 
 type Params = { slug: string; subject: string };
 
@@ -41,22 +41,7 @@ export default async function Page({ params }: { params: Params }) {
 			? `${subj.title} — ${classNum} класс`
 			: `${params.subject} — ${params.slug}`;
 
-	return (
-		<main>
-			<Box sx={{ py: { xs: 5, md: 8 } }}>
-				<Container maxWidth="lg">
-					<Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, border: '1px solid', borderColor: 'divider' }}>
-						<Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
-							{title}
-						</Typography>
-						<Typography color="text.secondary">
-							Страница пересечения предмета и класса (пустая заглушка).
-						</Typography>
-					</Paper>
-				</Container>
-			</Box>
-		</main>
-	);
+	return <PageContent title={title} infoBlocks={[]} />;
 }
 
 

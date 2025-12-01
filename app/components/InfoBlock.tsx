@@ -54,7 +54,7 @@ export default function InfoBlock({
             sx={{ width: '100%', height: { xs: 220, md: '100%' }, objectFit: 'cover' }}
           />
         </Box>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, px: 2 }}>
           <Typography variant="h2" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
             {title}
           </Typography>

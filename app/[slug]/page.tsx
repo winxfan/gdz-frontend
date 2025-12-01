@@ -1,6 +1,6 @@
 import classesContent from '../../classes_content.json';
 import lessons from '../../lessons.json';
-import ClassPageContent from '@/components/ClassPageContent';
+import { PageContent, type PageInfoBlock } from '@/page';
 
 type Params = { slug: string };
 
@@ -10,9 +10,9 @@ type LessonItem = {
 	classes: Record<'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11', boolean>;
 };
 
-type ClassPageContent = {
+type ClassPageContentData = {
 	title: string;
-	blocks: { title: string; description: string }[];
+	blocks: PageInfoBlock[];
 };
 
 function isClassSlug(slug: string): boolean {
@@ -35,17 +35,17 @@ export default function Page({ params }: { params: Params }) {
 	const classPage = isClassSlug(slug);
 
 	let title = '';
-	let classContent: ClassPageContent | null = null;
+	let classContent: ClassPageContentData | null = null;
 	if (classPage) {
 		const n = slug.split('-')[0] as keyof typeof classesContent;
-		classContent = (classesContent as Record<string, ClassPageContent>)[n] ?? null;
+		classContent = (classesContent as Record<string, ClassPageContentData>)[n] ?? null;
 		title = classContent?.title || `${n} класс`;
 	} else {
 		const subj = subjectByName(slug);
 		title = subj?.title || slug;
 	}
 
-	return <ClassPageContent title={title} infoBlocks={classContent?.blocks ?? []} />;
+	return <PageContent title={title} infoBlocks={classContent?.blocks ?? []} />;
 }
 
 

@@ -34,7 +34,7 @@ const HOW_TO_USE_STEPS = [
 	},
 ] as const;
 
-const INFO_BLOCKS = [
+const DEFAULT_INFO_BLOCKS = [
 	{
 		title: '⚡ Быстрые и осмысленные ответы',
 		description:
@@ -42,6 +42,7 @@ const INFO_BLOCKS = [
 		image: infoblock1,
 		imagePosition: 'left' as const,
 		buttonText: 'Получить ответ по фото',
+		buttonHref: '#hero-upload',
 	},
 	{
 		title: '🧠 Понятное объяснение задачи',
@@ -50,6 +51,7 @@ const INFO_BLOCKS = [
 		image: infoblock2,
 		imagePosition: 'right' as const,
 		buttonText: 'Получить объяснение',
+		buttonHref: '#hero-upload',
 	},
 	{
 		title: '📚 Все школьные предметы - универсальный решебник и ГДЗ',
@@ -58,6 +60,7 @@ const INFO_BLOCKS = [
 		image: infoblock3,
 		imagePosition: 'left' as const,
 		buttonText: 'Решить задачу по фото',
+		buttonHref: '#hero-upload',
 	},
 ] as const;
 
@@ -73,7 +76,27 @@ function asUrl(mod: any): string {
 	return typeof mod === 'string' ? mod : (mod && typeof mod.src === 'string' ? mod.src : '');
 }
 
-export default function Page() {
+export type PageInfoBlock = {
+	title: string;
+	description: string;
+};
+
+export type PageContentProps = {
+	title: string;
+	infoBlocks?: PageInfoBlock[];
+};
+
+function resolveInfoBlocks(infoBlocks?: PageInfoBlock[]) {
+	return DEFAULT_INFO_BLOCKS.map((block, index) => ({
+		...block,
+		title: infoBlocks?.[index]?.title ?? block.title,
+		description: infoBlocks?.[index]?.description ?? block.description,
+	}));
+}
+
+export function PageContent({ title, infoBlocks }: PageContentProps) {
+	const resolvedBlocks = resolveInfoBlocks(infoBlocks);
+
 	return (
 		<main>
 			<Box sx={{ py: { xs: 5, md: 8 } }}>
@@ -83,7 +106,7 @@ export default function Page() {
 						align="center"
 						sx={{ fontWeight: 800, mb: 1, fontSize: { xs: '2rem', md: '2.5rem' } }}
 					>
-						Гдз по фото бесплатно с помощью ИИ 🎓
+						{title}
 					</Typography>
 					<Typography align="center" color="text.secondary" sx={{ mb: { xs: 4, md: 6 } }}>
 						Загрузите фотографию задания и мгновенно получите ответ. <br />
@@ -119,14 +142,14 @@ export default function Page() {
 
 			<Box sx={{ py: { xs: 5, md: 8 } }}>
 				<Container maxWidth="lg" sx={{ display: 'grid', gap: 3 }}>
-					{INFO_BLOCKS.map((block) => (
+					{resolvedBlocks.map((block) => (
 						<InfoBlock
 							key={block.title}
 							title={block.title}
 							description={block.description}
 							image={asUrl(block.image)}
 							buttonText={block.buttonText}
-							buttonHref="#hero-upload"
+							buttonHref={block.buttonHref}
 							imagePosition={block.imagePosition}
 						/>
 					))}
@@ -148,5 +171,14 @@ export default function Page() {
 				</Container>
 			</Box>
 		</main>
+	);
+}
+
+export default function Page() {
+	return (
+		<PageContent
+			title="Гдз по фото бесплатно с помощью ИИ 🎓"
+			infoBlocks={DEFAULT_INFO_BLOCKS.map(({ title, description }) => ({ title, description }))}
+		/>
 	);
 }
