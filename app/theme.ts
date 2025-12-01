@@ -9,7 +9,7 @@ export const theme = createTheme({
 		text: { primary: '#2E2E52', secondary: '#6A6A8C' },
 	},
 	typography: {
-		fontFamily: 'Inter, sans-serif',
+		fontFamily: `'Roboto', 'Helvetica', 'Arial', 'sans-serif'`,
 		h1: { fontSize: '48px', fontWeight: 700 },
 		h2: { fontSize: '32px', fontWeight: 700 },
 		body1: { fontSize: '18px', lineHeight: 1.5 },

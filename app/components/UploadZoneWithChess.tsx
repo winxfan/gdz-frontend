@@ -171,6 +171,7 @@ export default function UploadZoneWithChess({
                 '&:hover': { transform: isDisabled ? 'none' : 'scale(1.06)' },
               }}
               onClick={() => selectExample(url)}
+              imgProps={{ loading: 'lazy' }}
             />
           ))}
         </Box>

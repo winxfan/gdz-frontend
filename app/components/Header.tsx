@@ -35,7 +35,7 @@ export default function Header() {
 				<Link href="/" style={{ textDecoration: 'none', color: '#e55f5f' }}>
 					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
 						<Box sx={{ display: { xs: 'none', sm: 'flex', alignItems: 'center' } }}>
-							<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} priority />
+							<Image src={logoPng} alt="Логотип ГДЗ по фото" width={28} height={28} loading="lazy" />
 						</Box>
 						<Typography
 							variant="h6"

@@ -51,6 +51,7 @@ export default function InfoBlock({
             component="img"
             src={image}
             alt={imageAlt || title}
+            loading="lazy"
             sx={{ width: '100%', height: { xs: 220, md: '100%' }, objectFit: 'cover' }}
           />
         </Box>

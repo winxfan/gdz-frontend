@@ -145,6 +145,7 @@ export function PageContent({ title, description, infoBlocks }: PageContentProps
 							component="img"
 							src={Banner1.src}
 							alt="Учёба"
+							loading="lazy"
 							sx={{ width: '100%', borderRadius: 1, display: 'block', objectFit: 'cover' }}
 						/>
 						<Box id="hero-upload" sx={{ height: '100%' }}>

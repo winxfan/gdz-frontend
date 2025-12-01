@@ -44,6 +44,7 @@ export default function ResultModal({
 									component="img"
 									src={imageSrc}
 									alt="Загруженное изображение"
+									loading="lazy"
 									sx={{
 										display: 'block',
 										maxWidth: '100%',

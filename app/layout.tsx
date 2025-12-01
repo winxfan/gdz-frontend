@@ -3,13 +3,10 @@ import './globals.css';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
 import logoPng from '@/assets/gdz-logo.webp';
 import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 import Toolbar from '@mui/material/Toolbar';
-
-const inter = Inter({ subsets: ['latin', 'cyrillic'], weight: ['400', '700', '800'] });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3002';
 
@@ -79,7 +76,7 @@ export default function RootLayout({
 	children: ReactNode;
 }) {
 	return (
-		<html lang="ru" className={inter.className}>
+		<html lang="ru">
 			<body>
 				<Providers>
 					<Header />

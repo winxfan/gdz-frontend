@@ -125,7 +125,13 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 									}}
 								>
 									{pack.image ? (
-										<Image src={pack.image} alt={pack.title ?? 'Пакет энергии'} width={64} height={64} />
+										<Image
+											src={pack.image}
+											alt={pack.title ?? 'Пакет энергии'}
+											width={64}
+											height={64}
+											loading="lazy"
+										/>
 									) : null}
 								</Box>
 

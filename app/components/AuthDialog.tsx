@@ -13,7 +13,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { API_BASE } from '../config';
 import VkLogo from '@/assets/vk_logo.svg';
 import YandexLogo from '@/assets/yandex_logo.svg';
-import GoogleLogo from '@/assets/google_logo.svg';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
 import { avatarUrlById } from '@/components/avatar/images';
@@ -332,7 +331,13 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
             px: 2,
             gap: 1.5,
           }}
-            startIcon={<Avatar src={asUrl(VkLogo)} sx={{ width: 28, height: 28, bgcolor: 'transparent' }} />}
+            startIcon={
+							<Avatar
+								src={asUrl(VkLogo)}
+								sx={{ width: 28, height: 28, bgcolor: 'transparent' }}
+								imgProps={{ loading: 'lazy' }}
+							/>
+						}
           >
             VK ID
           </Button>
@@ -350,28 +355,16 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
             px: 2,
             gap: 1.5,
           }}
-            startIcon={<Avatar src={asUrl(YandexLogo)} sx={{ width: 28, height: 28, bgcolor: 'transparent' }} />}
+            startIcon={
+							<Avatar
+								src={asUrl(YandexLogo)}
+								sx={{ width: 28, height: 28, bgcolor: 'transparent' }}
+								imgProps={{ loading: 'lazy' }}
+							/>
+						}
           >
             Яндекс
           </Button>
-
-          {/* <Button onClick={() => oauth('google')} variant="text" color="inherit" sx={{
-            justifyContent: 'flex-start',
-            bgcolor: 'action.hover',
-            '&:hover': { bgcolor: 'action.selected' },
-            py: 1.5,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontSize: 18,
-            fontWeight: 600,
-            color: 'text.primary',
-            px: 2,
-            gap: 1.5,
-          }}
-            startIcon={<Avatar src={asUrl(GoogleLogo)} sx={{ width: 28, height: 28, bgcolor: 'transparent' }} />}
-          >
-            Google
-          </Button> */}
 
         </Stack>
 
