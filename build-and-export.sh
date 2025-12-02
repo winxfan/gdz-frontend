@@ -7,8 +7,17 @@ SITE_URL=${1:-"https://xn-----glcep7bbaf7au.xn--p1ai"}
 IMAGE_NAME="gdz-frontend:latest"
 OUTPUT_FILE="gdz-frontend.tar"
 
-echo "🔨 Сборка Docker образа с URL: $SITE_URL"
-docker build --build-arg NEXT_PUBLIC_SITE_URL="$SITE_URL" -t "$IMAGE_NAME" .
+# Проверка и создание buildx builder если нужно
+BUILDER_NAME="multiarch-builder"
+if ! docker buildx inspect "$BUILDER_NAME" &>/dev/null; then
+    echo "🔧 Создание buildx builder для кросс-компиляции..."
+    docker buildx create --name "$BUILDER_NAME" --use --bootstrap
+else
+    docker buildx use "$BUILDER_NAME"
+fi
+
+echo "🔨 Сборка Docker образа с URL: $SITE_URL для платформы linux/amd64"
+docker buildx build --platform linux/amd64 --build-arg NEXT_PUBLIC_SITE_URL="$SITE_URL" -t "$IMAGE_NAME" --load .
 
 if [ $? -eq 0 ]; then
     echo "✅ Образ успешно собран"
