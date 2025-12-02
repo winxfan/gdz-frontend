@@ -95,7 +95,15 @@ async function createPkcePair(): Promise<{ verifier: string; challenge: string }
 const VK_APP_ID = Number(process.env.NEXT_PUBLIC_VK_APP_ID || 0);
 const VK_REDIRECT_URL = `${API_BASE}/api/v1/auth/oauth/vk/callback`;
 
-export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boolean; onClose?: () => void } = {}) {
+export default function AuthDialog({ 
+  open: forcedOpen, 
+  onClose,
+  title 
+}: { 
+  open?: boolean; 
+  onClose?: () => void;
+  title?: string;
+} = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -331,20 +339,28 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  const displayTitle = title ?? 'Вход или регистрация';
+  const displaySubtitle = title ? undefined : 'Получите доступ к быстрому решению задач по фото.';
+
   return (
-    <Dialog open={!!open} onClose={close} fullWidth maxWidth="xs">
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', mb: 2, textAlign: 'center' }}>
-            <div>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Вход или регистрация</Typography>
-          <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                Получите доступ к быстрому решению задач по фото.
-            </Typography>
-            </div>
-          <IconButton onClick={close} size="small" aria-label="Закрыть">
-            <CloseIcon />
-          </IconButton>
-        </Box>
+    <Dialog open={!!open} onClose={close} fullWidth maxWidth="sm">
+      <Box sx={{ p: { xs: 2, sm: 3 }, position: 'relative' }}>
+        <IconButton
+          aria-label="Закрыть"
+          onClick={close}
+          sx={{ position: 'absolute', top: 8, right: 8 }}
+          color="primary"
+        >
+          <CloseIcon />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, textAlign: 'center' }}>
+          {displayTitle}
+        </Typography>
+        {displaySubtitle && (
+          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 1.5 }}>
+            {displaySubtitle}
+          </Typography>
+        )}
 
         <Stack spacing={1.5}>
           <Box 

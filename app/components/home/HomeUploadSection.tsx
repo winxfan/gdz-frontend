@@ -18,6 +18,7 @@ import {
 import UploadZoneWithChess from '@/components/UploadZoneWithChess';
 import TopUpDialog from '@/components/TopUpDialog';
 import ResultModal from '@/components/ResultModal';
+import AuthDialog from '@/components/AuthDialog';
 import { userAtom } from '@/state/user';
 import { API_BASE } from '@/config';
 
@@ -36,6 +37,7 @@ export default function HomeUploadSection() {
 	const [user, setUser] = useAtom(userAtom);
 	const [isWorking, setIsWorking] = useState(false);
 	const [topUpOpen, setTopUpOpen] = useState(false);
+	const [authDialogOpen, setAuthDialogOpen] = useState(false);
 	const [jobDialogOpen, setJobDialogOpen] = useState(false);
 	const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
 	const [jobInfo, setJobInfo] = useState<JobInfo | null>(null);
@@ -45,6 +47,7 @@ export default function HomeUploadSection() {
 	const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
 
 	const canSpendToken = (user?.tokens ?? 0) > 0;
+	const tokens = user?.tokens ?? 0;
 
 	const pollJobUntilDone = useCallback(async (jobId: string): Promise<JobInfo> => {
 		const maxAttempts = 15;
@@ -122,8 +125,8 @@ export default function HomeUploadSection() {
 				}
 
 				if (res.status === 403) {
-					setJobError('Достигнут лимит для анонимных пользователей. Войдите или пополните баланс.');
-					setJobStatus('failed');
+					setJobDialogOpen(false);
+					setAuthDialogOpen(true);
 					return;
 				}
 
@@ -173,6 +176,12 @@ export default function HomeUploadSection() {
 			</Box>
 
 			<TopUpDialog open={topUpOpen} onClose={() => setTopUpOpen(false)} />
+
+			<AuthDialog 
+				open={authDialogOpen} 
+				onClose={() => setAuthDialogOpen(false)}
+				title={`Авторизуйтесь чтобы потратить ⚡️${tokens}`}
+			/>
 
 			<Dialog open={jobDialogOpen} onClose={() => setJobDialogOpen(false)} maxWidth="md" fullWidth>
 				<DialogTitle>
