@@ -157,9 +157,14 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 			};
 			setUser(next);
 
-			handleClose();
 			// Передаем обновленные данные пользователя в callback
 			onSuccess?.({ id: next.id!, ip: next.ip });
+			
+			// Закрываем диалог после успешного выполнения
+			// Используем setTimeout, чтобы дать React время обновить состояние
+			setTimeout(() => {
+				handleClose();
+			}, 0);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Не удалось привязать email. Попробуйте позже.';
 			setError(message);

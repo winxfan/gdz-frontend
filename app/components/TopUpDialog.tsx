@@ -206,7 +206,9 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 	const handleEmailBindingSuccess = useCallback(
 		async (updatedUser: { id: string; ip?: string }) => {
 			// После успешной привязки email продолжаем процесс покупки
-			// Диалог привязки email уже закрыт в EmailBindingDialog
+			// Закрываем диалог привязки email явно
+			setEmailDialogOpen(false);
+			
 			if (pendingPack) {
 				// Сразу создаем payment intent с обновленными данными пользователя
 				await createPaymentIntent(pendingPack, updatedUser.id, updatedUser.ip);
