@@ -17,6 +17,8 @@ import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
 import { avatarUrlById } from '@/components/avatar/images';
 import ConsentCheckboxes, { ConsentState } from '@/components/ConsentCheckboxes';
+import { useMutation } from '@tanstack/react-query';
+import { exchangeVkIdCode } from '@/utils/api';
 
 function ProviderAvatar({ label, bg, color }: { label: string; bg: string; color: string }) {
   return (
@@ -205,42 +207,20 @@ export default function AuthDialog({
     }
   }, []);
 
-  const exchangeCode = useCallback(
-    async (code: string, deviceId: string) => {
-      if (!user?.ip) {
-        throw new Error('Не удалось получить IP пользователя');
-      }
+  const exchangeCodeMutation = useMutation({
+    mutationFn: async (params: { code: string; deviceId: string }) => {
       const codeVerifier = pkceStateRef.current?.verifier;
       if (!codeVerifier) {
         throw new Error('PKCE verifier отсутствует');
       }
-      const res = await fetch(`${API_BASE}/api/v1/auth/oauth/vk-id/exchange`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-user-ip': user.ip,
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          code,
-          deviceId,
-          codeVerifier,
-          marketingConsent: consentState.marketing,
-        }),
+      return exchangeVkIdCode({
+        code: params.code,
+        deviceId: params.deviceId,
+        codeVerifier,
+        marketingConsent: consentState.marketing,
       });
-      if (!res.ok) {
-        const detail = await res.text().catch(() => '');
-        throw new Error(detail || `Ошибка обмена кода (${res.status})`);
-      }
-      const payload = (await res.json()) as {
-        id: string;
-        name?: string;
-        username: string;
-        avatarId: number;
-        tokens?: number;
-        tokensUsedAsAnon?: number;
-        isAuthorized?: boolean;
-      };
+    },
+    onSuccess: (payload) => {
       const next = {
         ...user,
         id: payload.id,
@@ -255,9 +235,11 @@ export default function AuthDialog({
       setUser(next);
       close();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.ip, setUser, consentState.marketing],
-  );
+    onError: (error: Error) => {
+      console.error(error);
+      alert('Не удалось выполнить вход через VK ID. Попробуйте еще раз.');
+    },
+  });
 
   const handleLoginSuccess = useCallback(
     async (payload: any) => {
@@ -276,13 +258,13 @@ export default function AuthDialog({
         if (!code || !deviceId) {
           throw new Error('Некорректные данные VK ID');
         }
-        await exchangeCode(code, deviceId);
+        exchangeCodeMutation.mutate({ code, deviceId });
       } catch (e) {
         console.error(e);
         alert('Не удалось выполнить вход через VK ID. Попробуйте еще раз.');
       }
     },
-    [exchangeCode, isConsentValid],
+    [exchangeCodeMutation, isConsentValid],
   );
 
   const renderOneTap = useCallback(() => {

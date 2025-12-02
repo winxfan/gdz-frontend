@@ -12,14 +12,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
-import { API_BASE } from '../config';
 import ConsentCheckboxes, { ConsentState } from '@/components/ConsentCheckboxes';
 import { avatarUrlById } from '@/components/avatar/images';
+import { useMutation } from '@tanstack/react-query';
+import { bindEmail } from '@/utils/api';
+import { AxiosError } from 'axios';
 
 export type EmailBindingDialogProps = {
 	open: boolean;
 	onClose: () => void;
-	onSuccess?: (updatedUser: { id: string; ip?: string }) => void;
+	onSuccess?: (updatedUser: { id: string }) => void;
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,7 +31,6 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 	const [email, setEmail] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [emailError, setEmailError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(false);
 	const [consentState, setConsentState] = useState<ConsentState>({
 		privacy: false,
 		personalData: false,
@@ -38,6 +39,64 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 	});
 
 	const isConsentValid = consentState.privacy && consentState.personalData && consentState.userAgreement;
+
+	const bindEmailMutation = useMutation({
+		mutationFn: async (emailValue: string) => {
+			if (!user?.id) {
+				throw new Error('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
+			}
+			return bindEmail({
+				userId: user.id,
+				email: emailValue,
+				isAcceptedPromo: consentState.marketing,
+			});
+		},
+		onSuccess: (payload) => {
+			const next = {
+				...user,
+				id: payload.id,
+				username: payload.username,
+				avatarId: payload.avatarId,
+				avatarUrl: avatarUrlById(payload.avatarId),
+				tokens: payload.tokens,
+				tokensUsedAsAnon: payload.tokensUsedAsAnon,
+				isAuthorized: Boolean(payload.isAuthorized),
+				isHaveEmail: Boolean(payload.isHaveEmail),
+				email: email.trim(),
+			};
+			setUser(next);
+
+			// Передаем обновленные данные пользователя в callback
+			onSuccess?.({ id: next.id! });
+			
+			// Закрываем диалог после успешного выполнения
+			// Используем setTimeout, чтобы дать React время обновить состояние
+			setTimeout(() => {
+				handleClose();
+			}, 0);
+		},
+		onError: (err: unknown) => {
+			let message = 'Не удалось привязать email. Попробуйте позже.';
+			if (err instanceof AxiosError) {
+				const status = err.response?.status;
+				if (status === 409) {
+					message = 'Этот email уже занят другим пользователем';
+				} else if (status === 400) {
+					message = 'Неверный формат email';
+				} else if (status === 404) {
+					message = 'Пользователь не найден';
+				} else {
+					const errorText = typeof err.response?.data === 'string' 
+						? err.response.data 
+						: err.message || message;
+					message = errorText;
+				}
+			} else if (err instanceof Error) {
+				message = err.message;
+			}
+			setError(message);
+		},
+	});
 
 	const validateEmail = useCallback((value: string) => {
 		const trimmed = value.trim();
@@ -82,11 +141,6 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 	}, [error, validateEmail]);
 
 	const handleSubmit = useCallback(async () => {
-		if (!user?.id) {
-			setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
-			return;
-		}
-
 		if (!email.trim()) {
 			setError('Пожалуйста, введите email');
 			setEmailError('Пожалуйста, введите email');
@@ -104,74 +158,8 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 		}
 
 		setError(null);
-		setLoading(true);
-
-		try {
-			const res = await fetch(`${API_BASE}/api/v1/users/${user.id}/email`, {
-				method: 'POST',
-				headers: {
-					'content-type': 'application/json',
-					...(user.ip ? { 'x-user-ip': user.ip } : {}),
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					email: email.trim(),
-					is_accepted_promo: consentState.marketing || undefined,
-				}),
-			});
-
-			if (!res.ok) {
-				const errorText = await res.text().catch(() => '');
-				if (res.status === 409) {
-					throw new Error('Этот email уже занят другим пользователем');
-				} else if (res.status === 400) {
-					throw new Error('Неверный формат email');
-				} else if (res.status === 404) {
-					throw new Error('Пользователь не найден');
-				} else {
-					throw new Error(errorText || 'Не удалось привязать email. Попробуйте позже.');
-				}
-			}
-
-			const payload = (await res.json()) as {
-				id: string;
-				username: string;
-				avatarId: number;
-				tokens?: number;
-				tokensUsedAsAnon?: number;
-				isAuthorized?: boolean;
-				isHaveEmail?: boolean;
-			};
-
-			const next = {
-				...user,
-				id: payload.id,
-				username: payload.username,
-				avatarId: payload.avatarId,
-				avatarUrl: avatarUrlById(payload.avatarId),
-				tokens: payload.tokens,
-				tokensUsedAsAnon: payload.tokensUsedAsAnon,
-				isAuthorized: Boolean(payload.isAuthorized),
-				isHaveEmail: Boolean(payload.isHaveEmail),
-				email: email.trim(),
-			};
-			setUser(next);
-
-			// Передаем обновленные данные пользователя в callback
-			onSuccess?.({ id: next.id!, ip: next.ip });
-			
-			// Закрываем диалог после успешного выполнения
-			// Используем setTimeout, чтобы дать React время обновить состояние
-			setTimeout(() => {
-				handleClose();
-			}, 0);
-		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Не удалось привязать email. Попробуйте позже.';
-			setError(message);
-		} finally {
-			setLoading(false);
-		}
-	}, [user, email, isConsentValid, consentState.marketing, setUser, handleClose, onSuccess]);
+		bindEmailMutation.mutate(email);
+	}, [email, isConsentValid, bindEmailMutation, validateEmail]);
 
 	return (
 		<Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
@@ -181,7 +169,7 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 					onClick={handleClose}
 					sx={{ position: 'absolute', top: 8, right: 8 }}
 					color="primary"
-					disabled={loading}
+					disabled={bindEmailMutation.isPending}
 				>
 					<CloseIcon />
 				</IconButton>
@@ -201,7 +189,7 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 					type="email"
 					value={email}
 					onChange={handleEmailChange}
-					disabled={loading}
+					disabled={bindEmailMutation.isPending}
 					error={!!emailError}
 					helperText={emailError || 'Например: example@mail.ru'}
 					placeholder="example@mail.ru"
@@ -211,7 +199,7 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 					}}
 					sx={{ mb: 2 }}
 					onKeyDown={(e) => {
-						if (e.key === 'Enter' && !loading && isConsentValid && email.trim() && !emailError) {
+						if (e.key === 'Enter' && !bindEmailMutation.isPending && isConsentValid && email.trim() && !emailError) {
 							void handleSubmit();
 						}
 					}}
@@ -224,7 +212,7 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 					color="primary"
 					fullWidth
 					onClick={handleSubmit}
-					disabled={loading || !isConsentValid || !email.trim() || !!emailError}
+					disabled={bindEmailMutation.isPending || !isConsentValid || !email.trim() || !!emailError}
 					sx={{
 						mt: 3,
 						borderRadius: 999,
@@ -232,9 +220,9 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 						textTransform: 'none',
 						fontWeight: 800,
 					}}
-					startIcon={loading ? <CircularProgress color="inherit" size={18} thickness={5} /> : undefined}
+					startIcon={bindEmailMutation.isPending ? <CircularProgress color="inherit" size={18} thickness={5} /> : undefined}
 				>
-					{loading ? 'Отправка...' : 'Отправить'}
+					{bindEmailMutation.isPending ? 'Отправка...' : 'Отправить'}
 				</Button>
 			</Box>
 		</Dialog>

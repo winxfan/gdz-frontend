@@ -3,100 +3,66 @@
 import { ReactNode } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { theme } from './theme';
-import { Provider as JotaiProvider, useAtom, useSetAtom } from 'jotai';
-import { userAtom, userIpAtom } from '@/state/user';
+import { Provider as JotaiProvider, useAtom } from 'jotai';
+import { userAtom } from '@/state/user';
 import { useEffect } from 'react';
 import { avatarUrlById } from '@/components/avatar/images';
-import { API_BASE } from './config';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { authUser } from './utils/api';
+
+// Создаем QueryClient с настройками по умолчанию
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+			retry: 1,
+			staleTime: 5 * 60 * 1000, // 5 минут
+		},
+	},
+});
 
 function UserBootstrap() {
-	const setIp = useSetAtom(userIpAtom);
 	const [user, setUser] = useAtom(userAtom);
-	useEffect(() => {
-		let cancelled = false;
-		(async () => {
-			try {
-				// Получаем IP пользователя и сохраняем в store (и localStorage через атом)
-				const res = await fetch('https://api.ipify.org?format=json');
-				const data = (await res.json()) as { ip?: string };
-				if (!cancelled) {
-					const ip = data?.ip;
-					if (ip) {
-						setIp(ip);
-						// Дублируем IP в cookie (для кросс-валидации на backend)
-						try {
-							document.cookie = `user_ip=${ip}; path=/; max-age=${60 * 60 * 24 * 30}`;
-						} catch {}
-					}
-				}
-			} catch {
-				// игнорируем ошибки получения IP
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [setIp]);
 
-	// Авторизация анонима на backend (создание/получение пользователя по IP)
+	// Авторизация анонима на backend (создание/получение пользователя)
+	const { data: userData } = useQuery({
+		queryKey: ['auth-user'],
+		queryFn: authUser,
+		enabled: !user?.id, // Запрашиваем только если пользователь еще не авторизован
+		retry: false,
+	});
+
 	useEffect(() => {
-		let cancelled = false;
-		(async () => {
-			try {
-				// Ждём появления IP
-				if (!user?.ip) return;
-				const res = await fetch(`${API_BASE}/api/v1/auth-user`, {
-					method: 'POST',
-					headers: {
-						'x-user-ip': user.ip,
-						'content-type': 'application/json',
-					},
-					credentials: 'include',
-				});
-				if (!res.ok) return;
-				const payload = await res.json() as {
-					id: string;
-					username: string;
-					avatarId: number;
-					tokens?: number;
-					tokensUsedAsAnon?: number;
-					isAuthorized?: boolean;
-					isHaveEmail?: boolean;
-				};
-				if (cancelled) return;
-				const next = {
-					...user,
-					id: payload.id,
-					username: payload.username,
-					avatarId: payload.avatarId,
-					avatarUrl: avatarUrlById(payload.avatarId),
-					tokens: payload.tokens,
-					tokensUsedAsAnon: payload.tokensUsedAsAnon,
-					isAuthorized: Boolean(payload.isAuthorized),
-					isHaveEmail: Boolean(payload.isHaveEmail),
-				};
-				setUser(next);
-			} catch {
-				// игнорируем, UI покажет анонимный фолбэк
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user?.ip]);
+		if (userData && userData.id !== user?.id) {
+			setUser((prev) => ({
+				...prev,
+				id: userData.id,
+				username: userData.username,
+				avatarId: userData.avatarId,
+				avatarUrl: avatarUrlById(userData.avatarId),
+				tokens: userData.tokens,
+				tokensUsedAsAnon: userData.tokensUsedAsAnon,
+				isAuthorized: Boolean(userData.isAuthorized),
+				isHaveEmail: Boolean(userData.isHaveEmail),
+			}));
+		}
+	}, [userData, setUser, user?.id]);
+
 	return null;
 }
 
 export default function Providers({ children }: { children: ReactNode }) {
 	return (
-		<JotaiProvider>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<UserBootstrap />
-				{children}
-			</ThemeProvider>
-		</JotaiProvider>
+		<QueryClientProvider client={queryClient}>
+			<JotaiProvider>
+				<ThemeProvider theme={theme}>
+					<CssBaseline />
+					<UserBootstrap />
+					{children}
+				</ThemeProvider>
+			</JotaiProvider>
+		</QueryClientProvider>
 	);
 }
 

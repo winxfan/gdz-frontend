@@ -17,21 +17,10 @@ export type User = {
 	tokensUsedAsAnon?: number;
 	// Баланс молний
 	lightningBalance?: number;
-	// IP адрес пользователя
-	ip?: string;
 };
 
 // Храним все данные о пользователе в localStorage
 export const userAtom = atomWithStorage<User>('user', {});
-
-// Удобные производные атомы
-export const userIpAtom = atom(
-	(get) => get(userAtom).ip,
-	(get, set, ip: string | undefined) => {
-		const current = get(userAtom);
-		set(userAtom, { ...current, ip });
-	},
-);
 
 export const resetUserAtom = atom(null, (_get, set) => {
 	set(userAtom, {});

@@ -16,6 +16,8 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "latest",
+    "@tanstack/react-query": "^5.90.11",
+    "axios": "^1.13.2",
     "jotai": "^2.15.1",
     "katex": "^0.16.25",
     "next": "14.0.0",

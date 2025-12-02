@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { AvatarInfo } from './constants';
 import { avatarUrlById } from './images';
+import { getAvatarInfo } from '@/utils/api';
 
 const STORAGE_KEY = 'anonAvatarInfo';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 часа
@@ -35,53 +36,37 @@ function writeCache(value: AvatarInfo) {
 }
 
 export function useAvatarInfo() {
-	const [data, setData] = useState<AvatarInfo | null>(null);
-	const [loading, setLoading] = useState(true);
+	const cached = readCache();
+	
+	const { data, isLoading, error } = useQuery({
+		queryKey: ['avatar-info'],
+		queryFn: async () => {
+			const json = await getAvatarInfo();
+			const normalized: AvatarInfo = {
+				...json,
+				avatarUrl: avatarUrlById(json.animalId),
+			};
+			writeCache(normalized);
+			return normalized;
+		},
+		initialData: cached || undefined,
+		staleTime: TTL_MS,
+		retry: false,
+		refetchOnWindowFocus: false,
+	});
 
-	useEffect(() => {
-		let cancelled = false;
+	// Фолбэк при ошибке, только если нет кэша
+	const fallback: AvatarInfo | null = error && !cached ? {
+		animalId: 1,
+		animalRu: 'лиса',
+		displayName: 'Дружелюбная лиса',
+		avatarUrl: avatarUrlById(1),
+	} : null;
 
-		const cached = readCache();
-		if (cached) {
-			setData(cached);
-			// Не выходим: делаем SWR — фоновой рефетч для актуализации и серверных логов
-		}
-
-		(async () => {
-			try {
-				const res = await fetch('/api/avatar-info', { cache: 'no-store' });
-				const json = (await res.json()) as AvatarInfo;
-				if (!cancelled) {
-					const normalized: AvatarInfo = {
-						...json,
-						avatarUrl: avatarUrlById(json.animalId),
-					};
-					setData(normalized);
-					writeCache(normalized);
-				}
-			} catch {
-				if (!cancelled) {
-					// Фолбэк (совместим с ТЗ)
-					const fallback: AvatarInfo = {
-						animalId: 1,
-						animalRu: 'лиса',
-						displayName: 'Дружелюбная лиса',
-						avatarUrl: avatarUrlById(1),
-					};
-					// Показываем фолбэк, только если до этого не было кэша
-					if (!cached) setData(fallback);
-				}
-			} finally {
-				if (!cancelled) setLoading(false);
-			}
-		})();
-
-		return () => {
-			cancelled = true;
-		};
-	}, []);
-
-	return { data, loading };
+	return { 
+		data: data || fallback, 
+		loading: isLoading && !cached 
+	};
 }
 
 

@@ -12,14 +12,16 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/state/user';
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState, useMemo } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import tariff1 from '@/assets/tariff1.webp';
 import tariff2 from '@/assets/tariff2.webp';
 import tariff3 from '@/assets/tariff3.webp';
 import CloseIcon from '@mui/icons-material/Close';
-import { API_BASE } from '@/config';
 import EmailBindingDialog from '@/components/EmailBindingDialog';
+import { useMutation } from '@tanstack/react-query';
+import { createPaymentIntent } from '@/utils/api';
+import { AxiosError } from 'axios';
 
 export type EnergyPack = {
 	id: number;
@@ -107,84 +109,67 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 	const user = useAtomValue(userAtom);
 	const tokens = user?.tokens ?? 0;
 	const userId = user?.id;
-	const userIp = user?.ip;
 	const { open, onClose, onBuy, packs = defaultPacks } = props;
-	const [loadingPackId, setLoadingPackId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 	const [pendingPack, setPendingPack] = useState<EnergyPack | null>(null);
 
-	useEffect(() => {
-		if (!open) {
-			setError(null);
-			setLoadingPackId(null);
-			setEmailDialogOpen(false);
-			setPendingPack(null);
-		}
-	}, [open]);
-
-	// Функция для создания payment intent и редиректа на оплату
-	const createPaymentIntent = useCallback(
-		async (pack: EnergyPack, currentUserId?: string, currentUserIp?: string) => {
-			const targetUserId = currentUserId ?? userId;
-			if (!targetUserId) {
+	const createPaymentIntentMutation = useMutation({
+		mutationFn: async (pack: EnergyPack) => {
+			if (!userId) {
 				throw new Error('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
 			}
 
-			setError(null);
-			setLoadingPackId(pack.id);
+			const idempotencyKey =
+				typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+					? crypto.randomUUID()
+					: `topup-${pack.id}-${Date.now()}`;
 
-			try {
-				const idempotencyKey =
-					typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-						? crypto.randomUUID()
-						: `topup-${pack.id}-${Date.now()}`;
-
-				const res = await fetch(`${API_BASE}/api/v1/payments/intents`, {
-					method: 'POST',
-					headers: {
-						'content-type': 'application/json',
-						...(currentUserIp ?? userIp ? { 'x-user-ip': currentUserIp ?? userIp } : {}),
-						...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
-					},
-					credentials: 'include',
-					body: JSON.stringify({
-						user_id: targetUserId,
-						tariff_id: pack.tariffId ?? String(pack.id),
-						provider: 'yookassa',
-						description: pack.description ?? `Пополнение баланса на ⚡️${getTotalTokens(pack)}`,
-					}),
-				});
-
-				if (!res.ok) {
-					const errorText = await res.text().catch(() => '');
-					throw new Error(errorText || 'Не удалось создать ссылку на оплату. Попробуйте позже.');
-				}
-
-				const payload = (await res.json()) as PaymentIntentResponse;
-				const paymentUrl = payload.paymentUrl ?? payload.payment_url ?? null;
-
-				if (!paymentUrl) {
-					throw new Error('Ссылка на оплату не получена. Попробуйте позже.');
-				}
-
-				onBuy?.(pack);
-
-				window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-			} catch (err) {
-				const message =
-					err instanceof Error ? err.message : 'Ошибка при создании ссылки на оплату. Попробуйте позже.';
-				setError(message);
-				throw err;
-			} finally {
-				setLoadingPackId(null);
-			}
+			return createPaymentIntent({
+				userId,
+				tariffId: pack.tariffId ?? String(pack.id),
+				description: pack.description ?? `Пополнение баланса на ⚡️${getTotalTokens(pack)}`,
+				idempotencyKey,
+			});
 		},
-		[onBuy, userId, userIp],
-	);
+		onSuccess: (payload, pack) => {
+			const paymentUrl = payload.paymentUrl ?? payload.payment_url ?? null;
+
+			if (!paymentUrl) {
+				setError('Ссылка на оплату не получена. Попробуйте позже.');
+				return;
+			}
+
+			onBuy?.(pack);
+			window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+		},
+		onError: (err: unknown) => {
+			let message = 'Ошибка при создании ссылки на оплату. Попробуйте позже.';
+			if (err instanceof AxiosError) {
+				const errorText = typeof err.response?.data === 'string' 
+					? err.response.data 
+					: err.message || message;
+				message = errorText;
+			} else if (err instanceof Error) {
+				message = err.message;
+			}
+			setError(message);
+		},
+	});
+
+	useEffect(() => {
+		if (!open) {
+			setError(null);
+			setEmailDialogOpen(false);
+			setPendingPack(null);
+			createPaymentIntentMutation.reset();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [open]);
+
 
 	const handleBuy = useCallback(
-		async (pack: EnergyPack) => {
+		(pack: EnergyPack) => {
 			if (!userId) {
 				setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
 				return;
@@ -198,23 +183,27 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 			}
 
 			// Если email есть, сразу создаем payment intent
-			await createPaymentIntent(pack);
+			setError(null);
+			createPaymentIntentMutation.mutate(pack);
 		},
-		[user, userId, createPaymentIntent],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[user?.isHaveEmail, userId],
 	);
 
 	const handleEmailBindingSuccess = useCallback(
-		async (updatedUser: { id: string; ip?: string }) => {
+		(updatedUser: { id: string }) => {
 			// После успешной привязки email продолжаем процесс покупки
 			// Закрываем диалог привязки email явно
 			setEmailDialogOpen(false);
 			
 			if (pendingPack) {
 				// Сразу создаем payment intent с обновленными данными пользователя
-				await createPaymentIntent(pendingPack, updatedUser.id, updatedUser.ip);
+				setError(null);
+				createPaymentIntentMutation.mutate(pendingPack);
 			}
 		},
-		[pendingPack, createPaymentIntent],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[pendingPack],
 	);
 
 	return (
@@ -245,7 +234,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 						const totalTokens = getTotalTokens(pack);
 						const pricePerToken = pack.priceRub / totalTokens;
 						const formattedPricePerToken = rubPerToken.format(pricePerToken);
-						const isLoading = loadingPackId === pack.id;
+						const isLoading = createPaymentIntentMutation.isPending && (createPaymentIntentMutation.variables as EnergyPack | undefined)?.id === pack.id;
 
 						return (
 							<Box key={pack.id}>
@@ -325,7 +314,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 							<Button
 								variant="contained"
 								color="primary"
-								onClick={() => void handleBuy(pack)}
+								onClick={() => handleBuy(pack)}
 								sx={{
 									borderRadius: 999,
 									px: 3,
@@ -335,7 +324,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 									whiteSpace: 'nowrap',
 								}}
 								fullWidth
-								disabled={Boolean(loadingPackId)}
+								disabled={createPaymentIntentMutation.isPending}
 								startIcon={
 									isLoading ? <CircularProgress color="inherit" size={18} thickness={5} /> : undefined
 								}

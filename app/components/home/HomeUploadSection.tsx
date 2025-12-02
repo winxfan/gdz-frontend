@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
 	Alert,
 	Box,
@@ -20,19 +20,12 @@ import TopUpDialog from '@/components/TopUpDialog';
 import ResultModal from '@/components/ResultModal';
 import AuthDialog from '@/components/AuthDialog';
 import { userAtom } from '@/state/user';
-import { API_BASE } from '@/config';
 import { normalizeImageFile } from '@/utils/imageConverter';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createJob, getJobStatus } from '@/utils/api';
+import { AxiosError } from 'axios';
 
 type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
-
-type JobInfo = {
-	id: string;
-	status: JobStatus;
-	inputS3Url?: string;
-	detectedText?: string;
-	generatedText?: string;
-	errorMessage?: string | null;
-};
 
 export default function HomeUploadSection() {
 	const [user, setUser] = useAtom(userAtom);
@@ -41,7 +34,6 @@ export default function HomeUploadSection() {
 	const [authDialogOpen, setAuthDialogOpen] = useState(false);
 	const [jobDialogOpen, setJobDialogOpen] = useState(false);
 	const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
-	const [jobInfo, setJobInfo] = useState<JobInfo | null>(null);
 	const [jobError, setJobError] = useState<string | null>(null);
 	const [pollAttempt, setPollAttempt] = useState(0);
 	const [resultOpen, setResultOpen] = useState(false);
@@ -49,35 +41,113 @@ export default function HomeUploadSection() {
 
 	const canSpendToken = (user?.tokens ?? 0) > 0;
 	const tokens = user?.tokens ?? 0;
+	const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+	const [fullJobInfo, setFullJobInfo] = useState<{
+		id: string;
+		status: JobStatus;
+		detectedText?: string;
+		generatedText?: string;
+		errorMessage?: string | null;
+	} | null>(null);
 
-	const pollJobUntilDone = useCallback(async (jobId: string): Promise<JobInfo> => {
-		const maxAttempts = 15;
-		const delayMs = 2000;
+	// Polling статуса задачи
+	const { data: polledJobInfo } = useQuery({
+		queryKey: ['job-status', currentJobId],
+		queryFn: async () => {
+			if (!currentJobId) return null;
+			return getJobStatus(currentJobId);
+		},
+		enabled: Boolean(currentJobId),
+		refetchInterval: (query) => {
+			const data = query.state.data;
+			if (data?.status === 'done' || data?.status === 'failed') {
+				return false;
+			}
+			return 2000; // 2 секунды
+		},
+		retry: false,
+	});
 
-		for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-			setPollAttempt(attempt);
-			const res = await fetch(`${API_BASE}/api/v1/job/${jobId}`, {
-				method: 'GET',
-				credentials: 'include',
+	// Обновляем локальное состояние при изменении данных из query
+	useEffect(() => {
+		if (polledJobInfo) {
+			// Обновляем только если данные действительно изменились
+			setFullJobInfo((prev) => {
+				if (prev?.id === polledJobInfo.id && prev?.status === polledJobInfo.status) {
+					// Обновляем только если есть новые данные (detectedText, generatedText)
+					if (prev.detectedText === polledJobInfo.detectedText && prev.generatedText === polledJobInfo.generatedText) {
+						return prev;
+					}
+				}
+				return polledJobInfo;
 			});
-
-			if (!res.ok) {
-				const text = await res.text().catch(() => '');
-				throw new Error(text || 'Не удалось получить статус задачи');
+			setJobStatus(polledJobInfo.status);
+			if (polledJobInfo.status === 'done') {
+				setJobDialogOpen(false);
+				setResultOpen(true);
+			} else if (polledJobInfo.status === 'failed') {
+				setJobError(polledJobInfo.errorMessage || 'Ошибка обработки задачи');
 			}
-
-			const info = (await res.json()) as JobInfo;
-			setJobStatus(info.status);
-
-			if (info.status === 'done' || info.status === 'failed') {
-				return info;
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, delayMs));
 		}
+	}, [polledJobInfo]);
 
-		throw new Error('Превышен лимит попыток ожидания результата. Попробуйте позже.');
-	}, []);
+	const createJobMutation = useMutation({
+		mutationFn: async (file: File) => {
+			// Нормализуем файл: конвертируем WebP и другие неподдерживаемые форматы в JPEG
+			const normalizedFile = await normalizeImageFile(file);
+			
+			// Создаем preview URL
+			if (uploadedPreviewUrl) {
+				URL.revokeObjectURL(uploadedPreviewUrl);
+			}
+			try {
+				const previewUrl = URL.createObjectURL(normalizedFile);
+				setUploadedPreviewUrl(previewUrl);
+			} catch {
+				setUploadedPreviewUrl(null);
+			}
+
+			return createJob({
+				image: normalizedFile,
+				userId: user?.id,
+			});
+		},
+		onSuccess: (payload) => {
+			if (typeof payload.tokensLeft === 'number') {
+				setUser((prev) => (prev ? { ...prev, tokens: payload.tokensLeft } : prev));
+			}
+
+			// Устанавливаем начальную информацию о задаче
+			const initialJobInfo = {
+				id: payload.jobId,
+				status: payload.status as JobStatus,
+			};
+			setFullJobInfo(initialJobInfo);
+			setCurrentJobId(payload.jobId);
+			setJobStatus(payload.status as JobStatus);
+			setJobDialogOpen(true);
+			setJobError(null);
+		},
+		onError: (error: unknown) => {
+			let message = 'Ошибка при создании задачи';
+			if (error instanceof AxiosError) {
+				if (error.response?.status === 402) {
+					setTopUpOpen(true);
+					setJobDialogOpen(false);
+					return;
+				} else if (error.response?.status === 403) {
+					setJobDialogOpen(false);
+					setAuthDialogOpen(true);
+					return;
+				}
+				message = error.response?.data?.toString() || error.message || message;
+			} else if (error instanceof Error) {
+				message = error.message;
+			}
+			setJobError(message);
+			setJobStatus('failed');
+		},
+	});
 
 	const handleSelect = useCallback(
 		async (file: File) => {
@@ -87,93 +157,18 @@ export default function HomeUploadSection() {
 			}
 
 			setIsWorking(true);
-			setJobDialogOpen(true);
 			setJobError(null);
-			setJobInfo(null);
-			setJobStatus('queued');
 			setPollAttempt(0);
 
-			let normalizedFile: File;
 			try {
-				// Нормализуем файл: конвертируем WebP и другие неподдерживаемые форматы в JPEG
-				normalizedFile = await normalizeImageFile(file);
-			} catch (error) {
-				const message = error instanceof Error ? error.message : 'Ошибка обработки файла';
-				setJobError(message);
-				setJobStatus('failed');
-				setIsWorking(false);
-				return;
-			}
-
-			try {
-				if (uploadedPreviewUrl) {
-					URL.revokeObjectURL(uploadedPreviewUrl);
-				}
-				const previewUrl = URL.createObjectURL(normalizedFile);
-				setUploadedPreviewUrl(previewUrl);
+				await createJobMutation.mutateAsync(file);
 			} catch {
-				setUploadedPreviewUrl(null);
-			}
-
-			try {
-				const form = new FormData();
-				form.append('image', normalizedFile, normalizedFile.name);
-				if (user?.id) {
-					form.append('userId', user.id);
-				}
-
-				const res = await fetch(`${API_BASE}/api/v1/job`, {
-					method: 'POST',
-					body: form,
-					headers: {
-						...(user?.ip ? { 'x-user-ip': user.ip } : {}),
-					},
-					credentials: 'include',
-				});
-
-				if (res.status === 402) {
-					setTopUpOpen(true);
-					setJobDialogOpen(false);
-					return;
-				}
-
-				if (res.status === 403) {
-					setJobDialogOpen(false);
-					setAuthDialogOpen(true);
-					return;
-				}
-
-				if (!res.ok) {
-					const text = await res.text().catch(() => '');
-					throw new Error(text || 'Не удалось создать задачу');
-				}
-
-				const payload = (await res.json()) as { jobId: string; status: JobStatus; tokensLeft?: number };
-
-				if (typeof payload.tokensLeft === 'number') {
-					setUser((prev) => (prev ? { ...prev, tokens: payload.tokensLeft } : prev));
-				}
-
-				const finalInfo = await pollJobUntilDone(payload.jobId);
-
-				setJobInfo(finalInfo);
-				setJobStatus(finalInfo.status);
-
-				if (finalInfo.status === 'failed') {
-					setJobError(finalInfo.errorMessage || 'Ошибка обработки задачи');
-				} else if (finalInfo.status === 'done') {
-					setJobDialogOpen(false);
-					setResultOpen(true);
-				}
-			} catch (error) {
-				const message = error instanceof Error ? error.message : 'Ошибка при создании задачи';
-				setJobError(message);
-				setJobStatus('failed');
+				// Ошибка уже обработана в onError
 			} finally {
 				setIsWorking(false);
 			}
 		},
-		[canSpendToken, pollJobUntilDone, setUser, uploadedPreviewUrl, user],
+		[canSpendToken, createJobMutation, user],
 	);
 
 	return (
@@ -211,18 +206,18 @@ export default function HomeUploadSection() {
 							</Stack>
 						) : null}
 						{jobError ? <Alert severity="error">{jobError}</Alert> : null}
-						{jobStatus === 'done' && jobInfo ? (
+						{jobStatus === 'done' && fullJobInfo ? (
 							<Stack spacing={2}>
 								<Box>
 									<Typography sx={{ fontWeight: 700, mb: 0.5 }}>Распознанный текст</Typography>
 									<Paper variant="outlined" sx={{ p: 2, whiteSpace: 'pre-wrap' }}>
-										{jobInfo.detectedText || '—'}
+										{fullJobInfo.detectedText || '—'}
 									</Paper>
 								</Box>
 								<Box>
 									<Typography sx={{ fontWeight: 700, mb: 0.5 }}>Решение</Typography>
 									<Paper variant="outlined" sx={{ p: 2, whiteSpace: 'pre-wrap' }}>
-										{jobInfo.generatedText || '—'}
+										{fullJobInfo.generatedText || '—'}
 									</Paper>
 								</Box>
 							</Stack>
@@ -250,7 +245,7 @@ export default function HomeUploadSection() {
 					setUploadedPreviewUrl(null);
 				}}
 				imageSrc={uploadedPreviewUrl ?? undefined}
-				markdown={jobInfo?.generatedText ?? ''}
+				markdown={fullJobInfo?.generatedText ?? ''}
 			/>
 		</>
 	);
