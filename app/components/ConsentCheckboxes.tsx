@@ -72,7 +72,7 @@ export default function ConsentCheckboxes({ onChange, value }: ConsentCheckboxes
 	const isIndeterminate = !allChecked && allRequiredChecked;
 
 	return (
-		<Box sx={{ mt: 3 }}>
+		<Box>
 			<FormControlLabel
 				control={
 					<Checkbox

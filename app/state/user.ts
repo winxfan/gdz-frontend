@@ -11,6 +11,7 @@ export type User = {
 	avatarUrl?: string;
 	avatarId?: number; // 1..5
 	isAuthorized?: boolean;
+	isHaveEmail?: boolean;
 	// Токены
 	tokens?: number;
 	tokensUsedAsAnon?: number;

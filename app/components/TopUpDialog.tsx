@@ -19,6 +19,7 @@ import tariff2 from '@/assets/tariff2.webp';
 import tariff3 from '@/assets/tariff3.webp';
 import CloseIcon from '@mui/icons-material/Close';
 import { API_BASE } from '@/config';
+import EmailBindingDialog from '@/components/EmailBindingDialog';
 
 export type EnergyPack = {
 	id: number;
@@ -110,11 +111,15 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 	const { open, onClose, onBuy, packs = defaultPacks } = props;
 	const [loadingPackId, setLoadingPackId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+	const [pendingPack, setPendingPack] = useState<EnergyPack | null>(null);
 
 	useEffect(() => {
 		if (!open) {
 			setError(null);
 			setLoadingPackId(null);
+			setEmailDialogOpen(false);
+			setPendingPack(null);
 		}
 	}, [open]);
 
@@ -122,6 +127,14 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 		async (pack: EnergyPack) => {
 			if (!userId) {
 				setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
+				return;
+			}
+
+			// Если у пользователя нет email, показываем диалог привязки email
+			// Используем актуальное значение из user, а не из замыкания
+			if (!user?.isHaveEmail) {
+				setPendingPack(pack);
+				setEmailDialogOpen(true);
 				return;
 			}
 
@@ -173,8 +186,19 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 				setLoadingPackId(null);
 			}
 		},
-		[onBuy, userId, userIp],
+		[onBuy, userId, userIp, user],
 	);
+
+	const handleEmailBindingSuccess = useCallback(() => {
+		// После успешной привязки email продолжаем процесс покупки
+		// Состояние пользователя уже обновлено в EmailBindingDialog
+		// Используем setTimeout для того, чтобы React успел перерендерить компонент с новым состоянием
+		if (pendingPack) {
+			setTimeout(() => {
+				void handleBuy(pendingPack);
+			}, 0);
+		}
+	}, [pendingPack, handleBuy]);
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -309,6 +333,15 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					})}
 				</Box>
 			</Box>
+
+			<EmailBindingDialog
+				open={emailDialogOpen}
+				onClose={() => {
+					setEmailDialogOpen(false);
+					setPendingPack(null);
+				}}
+				onSuccess={handleEmailBindingSuccess}
+			/>
 		</Dialog>
 	);
 }

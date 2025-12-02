@@ -61,6 +61,7 @@ function UserBootstrap() {
 					tokens?: number;
 					tokensUsedAsAnon?: number;
 					isAuthorized?: boolean;
+					isHaveEmail?: boolean;
 				};
 				if (cancelled) return;
 				const next = {
@@ -72,6 +73,7 @@ function UserBootstrap() {
 					tokens: payload.tokens,
 					tokensUsedAsAnon: payload.tokensUsedAsAnon,
 					isAuthorized: Boolean(payload.isAuthorized),
+					isHaveEmail: Boolean(payload.isHaveEmail),
 				};
 				setUser(next);
 			} catch {
