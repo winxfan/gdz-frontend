@@ -190,9 +190,8 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 				return;
 			}
 
-			// Если у пользователя нет email, показываем диалог привязки email
-			// Используем актуальное значение из user, а не из замыкания
-			if (!user?.isHaveEmail) {
+			// Если у пользователя нет email (isHaveEmail = false или undefined), показываем диалог привязки email
+			if (user?.isHaveEmail !== true) {
 				setPendingPack(pack);
 				setEmailDialogOpen(true);
 				return;
@@ -201,7 +200,7 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 			// Если email есть, сразу создаем payment intent
 			await createPaymentIntent(pack);
 		},
-		[user?.isHaveEmail, userId, createPaymentIntent],
+		[user, userId, createPaymentIntent],
 	);
 
 	const handleEmailBindingSuccess = useCallback(
