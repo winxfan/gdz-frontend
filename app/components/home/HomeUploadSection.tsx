@@ -21,6 +21,7 @@ import ResultModal from '@/components/ResultModal';
 import AuthDialog from '@/components/AuthDialog';
 import { userAtom } from '@/state/user';
 import { API_BASE } from '@/config';
+import { normalizeImageFile } from '@/utils/imageConverter';
 
 type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
 
@@ -92,11 +93,23 @@ export default function HomeUploadSection() {
 			setJobStatus('queued');
 			setPollAttempt(0);
 
+			let normalizedFile: File;
+			try {
+				// Нормализуем файл: конвертируем WebP и другие неподдерживаемые форматы в JPEG
+				normalizedFile = await normalizeImageFile(file);
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Ошибка обработки файла';
+				setJobError(message);
+				setJobStatus('failed');
+				setIsWorking(false);
+				return;
+			}
+
 			try {
 				if (uploadedPreviewUrl) {
 					URL.revokeObjectURL(uploadedPreviewUrl);
 				}
-				const previewUrl = URL.createObjectURL(file);
+				const previewUrl = URL.createObjectURL(normalizedFile);
 				setUploadedPreviewUrl(previewUrl);
 			} catch {
 				setUploadedPreviewUrl(null);
@@ -104,7 +117,7 @@ export default function HomeUploadSection() {
 
 			try {
 				const form = new FormData();
-				form.append('image', file, file.name);
+				form.append('image', normalizedFile, normalizedFile.name);
 				if (user?.id) {
 					form.append('userId', user.id);
 				}

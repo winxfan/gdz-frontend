@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Avatar, Box, Chip, Typography, CircularProgress, Link as MuiLink } from '@mui/material';
 import NextLink from 'next/link';
 import FreeButton from '@/components/FreeButton';
+import { normalizeImageFile } from '@/utils/imageConverter';
 
 export type UploadZoneWithChessProps = {
   onSelect: (file: File) => void;
@@ -80,8 +81,16 @@ export default function UploadZoneWithChess({
 
   const selectExample = useCallback(async (url: string) => {
     if (isDisabled) return;
-    const file = await urlToFile(url);
-    onSelect(file);
+    try {
+      const file = await urlToFile(url);
+      // Нормализуем файл: конвертируем WebP и другие неподдерживаемые форматы в JPEG
+      const normalizedFile = await normalizeImageFile(file);
+      onSelect(normalizedFile);
+    } catch (error) {
+      console.error('Ошибка при загрузке примера изображения:', error);
+      // Пробрасываем ошибку дальше, чтобы родительский компонент мог её обработать
+      throw error;
+    }
   }, [isDisabled, onSelect]);
 
   return (
