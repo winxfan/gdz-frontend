@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -16,6 +16,7 @@ import YandexLogo from '@/assets/yandex_logo.svg';
 import { useAtom } from 'jotai';
 import { userAtom } from '@/state/user';
 import { avatarUrlById } from '@/components/avatar/images';
+import ConsentCheckboxes, { ConsentState } from '@/components/ConsentCheckboxes';
 
 function ProviderAvatar({ label, bg, color }: { label: string; bg: string; color: string }) {
   return (
@@ -99,6 +100,12 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [user, setUser] = useAtom(userAtom);
+  const [consentState, setConsentState] = useState<ConsentState>({
+    privacy: false,
+    personalData: false,
+    userAgreement: false,
+    marketing: false,
+  });
 
   const open = useMemo(() => {
     if (typeof forcedOpen === 'boolean') return forcedOpen;
@@ -107,14 +114,29 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
   }, [forcedOpen, searchParams]);
 
   const close = () => {
+    // Сброс состояния согласия при закрытии
+    setConsentState({
+      privacy: false,
+      personalData: false,
+      userAgreement: false,
+      marketing: false,
+    });
     if (onClose) return onClose();
     const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.delete('auth');
     router.replace(`${pathname}?${params.toString() ?? ''}`);
   };
 
+  const isConsentValid = useMemo(() => {
+    return consentState.privacy && consentState.personalData && consentState.userAgreement;
+  }, [consentState]);
+
   const oauth = (provider: 'vk' | 'yandex' | 'google') => {
-    window.location.href = `${API_BASE}/api/v1/auth/oauth/${provider}/login`;
+    const url = new URL(`${API_BASE}/api/v1/auth/oauth/${provider}/login`);
+    if (consentState.marketing) {
+      url.searchParams.set('marketing_consent', 'true');
+    }
+    window.location.href = url.toString();
   };
 
   const oneTapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -195,6 +217,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
           code,
           deviceId,
           codeVerifier,
+          marketingConsent: consentState.marketing,
         }),
       });
       if (!res.ok) {
@@ -225,12 +248,16 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
       close();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user?.ip, setUser],
+    [user?.ip, setUser, consentState.marketing],
   );
 
   const handleLoginSuccess = useCallback(
     async (payload: any) => {
       try {
+        if (!isConsentValid) {
+          alert('Пожалуйста, согласитесь с обязательными условиями для продолжения.');
+          return;
+        }
         const expected = pkceStateRef.current?.state;
         const gotState = payload?.state;
         if (expected && gotState && expected !== gotState) {
@@ -247,7 +274,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
         alert('Не удалось выполнить вход через VK ID. Попробуйте еще раз.');
       }
     },
-    [exchangeCode],
+    [exchangeCode, isConsentValid],
   );
 
   const renderOneTap = useCallback(() => {
@@ -267,6 +294,10 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
   }, [handleLoginSuccess]);
 
   const vkLogin = useCallback(async () => {
+    if (!isConsentValid) {
+      alert('Пожалуйста, согласитесь с обязательными условиями для продолжения.');
+      return;
+    }
     try {
       sdkRef.current = await ensureVkidSdk();
       if (!sdkRef.current) {
@@ -282,7 +313,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
       console.error(e);
       alert('Не удалось открыть окно VK ID');
     }
-  }, [ensureVkidSdk, initVkidConfig]);
+  }, [ensureVkidSdk, initVkidConfig, isConsentValid]);
 
   useEffect(() => {
     let cancelled = false;
@@ -316,21 +347,34 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
         </Box>
 
         <Stack spacing={1.5}>
-          <Box ref={oneTapContainerRef} sx={{ mb: 0.5 }} />
+          <Box 
+            ref={oneTapContainerRef} 
+            sx={{ 
+              mb: 0.5,
+              opacity: isConsentValid ? 1 : 0.3,
+              pointerEvents: isConsentValid ? 'auto' : 'none',
+            }} 
+          />
 
-          <Button onClick={vkLogin} variant="text" color="inherit" sx={{
-            justifyContent: 'flex-start',
-            bgcolor: 'action.hover',
-            '&:hover': { bgcolor: 'action.selected' },
-            py: 1.5,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontSize: 18,
-            fontWeight: 600,
-            color: 'text.primary',
-            px: 2,
-            gap: 1.5,
-          }}
+          <Button 
+            onClick={vkLogin} 
+            variant="text" 
+            color="inherit" 
+            disabled={!isConsentValid}
+            sx={{
+              justifyContent: 'flex-start',
+              bgcolor: 'action.hover',
+              '&:hover': { bgcolor: 'action.selected' },
+              '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'text.primary',
+              px: 2,
+              gap: 1.5,
+            }}
             startIcon={
 							<Avatar
 								src={asUrl(VkLogo)}
@@ -342,19 +386,25 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
             VK ID
           </Button>
 
-          <Button onClick={() => oauth('yandex')} variant="text" color="inherit" sx={{
-            justifyContent: 'flex-start',
-            bgcolor: 'action.hover',
-            '&:hover': { bgcolor: 'action.selected' },
-            py: 1.5,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontSize: 18,
-            fontWeight: 600,
-            color: 'text.primary',
-            px: 2,
-            gap: 1.5,
-          }}
+          <Button 
+            onClick={() => oauth('yandex')} 
+            variant="text" 
+            color="inherit" 
+            disabled={!isConsentValid}
+            sx={{
+              justifyContent: 'flex-start',
+              bgcolor: 'action.hover',
+              '&:hover': { bgcolor: 'action.selected' },
+              '&:disabled': { opacity: 0.5, cursor: 'not-allowed' },
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontSize: 18,
+              fontWeight: 600,
+              color: 'text.primary',
+              px: 2,
+              gap: 1.5,
+            }}
             startIcon={
 							<Avatar
 								src={asUrl(YandexLogo)}
@@ -368,12 +418,7 @@ export default function AuthDialog({ open: forcedOpen, onClose }: { open?: boole
 
         </Stack>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
-          Продолжая, вы даёте{' '}
-          <a href="#" style={{ color: 'inherit' }}>согласие</a>{' '}на обработку{' '}
-          <a href="#" style={{ color: 'inherit' }}>персональных данных</a>{' '}и
-          {' '}соглашаетесь с{' '}<a href="#" style={{ color: 'inherit' }}>офертой</a>.
-        </Typography>
+        <ConsentCheckboxes value={consentState} onChange={setConsentState} />
       </Box>
     </Dialog>
   );
