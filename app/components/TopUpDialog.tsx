@@ -123,19 +123,12 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 		}
 	}, [open]);
 
-	const handleBuy = useCallback(
-		async (pack: EnergyPack) => {
-			if (!userId) {
-				setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
-				return;
-			}
-
-			// Если у пользователя нет email, показываем диалог привязки email
-			// Используем актуальное значение из user, а не из замыкания
-			if (!user?.isHaveEmail) {
-				setPendingPack(pack);
-				setEmailDialogOpen(true);
-				return;
+	// Функция для создания payment intent и редиректа на оплату
+	const createPaymentIntent = useCallback(
+		async (pack: EnergyPack, currentUserId?: string, currentUserIp?: string) => {
+			const targetUserId = currentUserId ?? userId;
+			if (!targetUserId) {
+				throw new Error('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
 			}
 
 			setError(null);
@@ -151,12 +144,12 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 					method: 'POST',
 					headers: {
 						'content-type': 'application/json',
-						...(userIp ? { 'x-user-ip': userIp } : {}),
+						...(currentUserIp ?? userIp ? { 'x-user-ip': currentUserIp ?? userIp } : {}),
 						...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
 					},
 					credentials: 'include',
 					body: JSON.stringify({
-						user_id: userId,
+						user_id: targetUserId,
 						tariff_id: pack.tariffId ?? String(pack.id),
 						provider: 'yookassa',
 						description: pack.description ?? `Пополнение баланса на ⚡️${getTotalTokens(pack)}`,
@@ -182,23 +175,46 @@ export default function TopUpDialog(props: TopUpDialogProps) {
 				const message =
 					err instanceof Error ? err.message : 'Ошибка при создании ссылки на оплату. Попробуйте позже.';
 				setError(message);
+				throw err;
 			} finally {
 				setLoadingPackId(null);
 			}
 		},
-		[onBuy, userId, userIp, user],
+		[onBuy, userId, userIp],
 	);
 
-	const handleEmailBindingSuccess = useCallback(() => {
-		// После успешной привязки email продолжаем процесс покупки
-		// Состояние пользователя уже обновлено в EmailBindingDialog
-		// Используем setTimeout для того, чтобы React успел перерендерить компонент с новым состоянием
-		if (pendingPack) {
-			setTimeout(() => {
-				void handleBuy(pendingPack);
-			}, 0);
-		}
-	}, [pendingPack, handleBuy]);
+	const handleBuy = useCallback(
+		async (pack: EnergyPack) => {
+			if (!userId) {
+				setError('Не удалось определить пользователя. Попробуйте обновить страницу и повторить попытку.');
+				return;
+			}
+
+			// Если у пользователя нет email, показываем диалог привязки email
+			// Используем актуальное значение из user, а не из замыкания
+			if (!user?.isHaveEmail) {
+				setPendingPack(pack);
+				setEmailDialogOpen(true);
+				return;
+			}
+
+			// Если email есть, сразу создаем payment intent
+			await createPaymentIntent(pack);
+		},
+		[user?.isHaveEmail, userId, createPaymentIntent],
+	);
+
+	const handleEmailBindingSuccess = useCallback(
+		async (updatedUser: { id: string; ip?: string }) => {
+			// После успешной привязки email продолжаем процесс покупки
+			// Диалог привязки email уже закрыт в EmailBindingDialog
+			if (pendingPack) {
+				// Сразу создаем payment intent с обновленными данными пользователя
+				await createPaymentIntent(pendingPack, updatedUser.id, updatedUser.ip);
+			}
+		},
+		[pendingPack, createPaymentIntent],
+	);
 
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

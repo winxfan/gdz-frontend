@@ -19,7 +19,7 @@ import { avatarUrlById } from '@/components/avatar/images';
 export type EmailBindingDialogProps = {
 	open: boolean;
 	onClose: () => void;
-	onSuccess?: () => void;
+	onSuccess?: (updatedUser: { id: string; ip?: string }) => void;
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,7 +158,8 @@ export default function EmailBindingDialog({ open, onClose, onSuccess }: EmailBi
 			setUser(next);
 
 			handleClose();
-			onSuccess?.();
+			// Передаем обновленные данные пользователя в callback
+			onSuccess?.({ id: next.id!, ip: next.ip });
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Не удалось привязать email. Попробуйте позже.';
 			setError(message);
